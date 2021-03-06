@@ -27,7 +27,10 @@ class Pawn(Piece):
         super().__init__(location, displayValue)
 
     def move(self):
-        print('placeholder for move')
+        if self.side = "b":
+            self.location[1] -= 1
+        elif self.side = "w":
+            self.location[1] += 1
 
 class Knight(Piece):
     def __init__(self, side, location, displayValue, scoreValue):
@@ -70,7 +73,6 @@ class King(Piece):
         print('placeholder for move')
 
 class Chess_Board():
-    #def __init__(self, bp1, wp1, bp2, wp2, bp3, wp3, bp4, wp4, bp5, wp5, bp6, wp6, bp7, wp7, bp8, wp8, br, wr, bkn, wkn, bb, wb, bq, wq, bk, wk, bb2, wb2, bkn2, wkn2, br2, wr2):
     def __init__(self, pieces):
         board = []
         for row in range(8):
