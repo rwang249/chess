@@ -132,29 +132,99 @@ def clearScreen():
     os.system('clear')
 
 def parser(coordinates):
-    string = coordinates
-    string.translate(None, '')
-    #placeholder, next thing to start working on
-    
+    chessFile = {"a":"0", "b":"1", "c":"2", "d":"3", "e":"4", "f":"5", "g":"6", "h":"7"}
+    string = re.sub('[\[!@#%$\s+\][i-z][A-Z],', '', coordinates)
+    pattern = "[a-h]"
+    parsedCoordinates = []
 
-def Game(createdBoard):
+    try:
+        if int(coordinates[3]) > 8 or int(coordinates[3]) < 0:
+            return False
+        else:
+            if re.match(pattern, coordinates[0]):
+                parsedCoordinates.append(chessFile[coordinates[0]])
+                parsedCoordinates.append(coordinates[3])
+                return parsedCoordinates
+            else:
+                parsedCoordinates.append(coordinates[0])
+                parsedCoordinates.append(coordinates[3])
+                return parsedCoordinates
+    except:
+        return False
+
+class Player1():
+    def __init__(self, name, color, points, turn):
+        self.name = name
+        self.points = points
+        self.color = color
+        self.turn = turn
+
+class Player2():
+    def __init__(self, name, color, points, turn):
+        self.name = name
+        self.points = points
+        self.color = color
+        self.turn = turn
+
+def Game(createdBoard, player1, player2):
+    turn = 1
     winner = False
     while winner != True:
+
         clearScreen()
-        print(createdBoard.displayBoard(createdBoard.board))
+        
+        #Iterate Players
+        if (turn % 2) == 1:
+            currentPlayer = player1
+        elif (turn % 2) == 0:
+            currentPlayer = player2
+        else:
+            print("turn error!")
+        #remove once you have actual game logic
         winner = True
-        source = input("Please provide coordinates of the piece you want to move[x, y]: ")
-        santizedSource = #parser(source)
-        destination = input("Please provide the target destination for the piece you want to move[x, y]: ")
-        #parser(destination)
-        sanitzedDestiaton = parser(destination)
-        print(source)
-        print(destination)
-# Pawn: 1 point (or pawn)
-# Knight: 3 points.
-# Bishop: 3 points.
-# Rook: 5 points.
-# Queen: 9 points
+
+        ####################
+        #REFERENCE
+        # for piece in createdBoard.pieces:
+        #     index = createdBoard.pieces.index(piece)
+        #     pieceLocation = createdBoard.pieces[index].location
+        #     print(createdBoard.pieces[index].location)
+        ##############################
+        
+        #start turn
+        print("Turn " + str(turn))
+        print(currentPlayer.name + '\'s Turn')
+        print(createdBoard.displayBoard(createdBoard.board))
+        while True:
+            source = input("Please provide source coordinates of the piece you want to move[x, y]: ")
+            sanitizedSource = parser(source)
+
+            if sanitizedSource == False:
+                print("Incorrect Source Coordinates, Please Try Again")
+                continue
+            else:
+                #################start working on tomorrow
+                for piece in createdBoard.pieces:
+                        index = createdBoard.pieces.index(piece)
+                        pieceLocation = createdBoard.pieces[index].location
+                        print(createdBoard.pieces[index].location)
+                break
+
+        while True:
+            source = input("Please provide destination coordinates of the piece you want to move[x, y]: ")
+            sanitizedDestination = parser(source)
+
+            if sanitizedDestination == False:
+                print("Incorrect Destination Coordinates, Please Try Again")
+                continue
+            else:
+                break
+        
+        print('source: ' + str(sanitizedSource))
+        print('destination: ' + str(sanitizedDestination))
+
+        turn += 1
+
 #Create pieces
 #PAWNS
 wp1 = Pawn("w", [0, 6], "wp", 1)
@@ -194,6 +264,8 @@ bb2 = Bishop("b", [5, 0], "bb", 3)
 bkn2 = Knight("b", [6, 0], "bn", 3)
 br2 = Rook("b", [7, 0], "br", 5)
 
+player1 = Player1("player1111","w", 0, True)
+player2 = Player2("player2222","b", 0, False)
 createdBoard = Chess_Board([bp1, wp1, bp2, wp2, bp3, wp3, bp4, wp4, bp5, wp5, bp6, wp6, bp7, wp7, bp8, wp8, br, wr, bkn, wkn, bb, wb, bq, wq, bk, wk, bb2, wb2, bkn2, wkn2, br2, wr2])
 
-Game(createdBoard)
+Game(createdBoard, player1, player2)
