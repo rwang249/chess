@@ -8,6 +8,8 @@
 #base class of piece
 #derivative will be individual pieces
 #chess board composition of piece?
+import os
+import re
 
 class Piece():
     #initalize piece
@@ -26,11 +28,31 @@ class Pawn(Piece):
         self.scoreValue = scoreValue
         super().__init__(location, displayValue)
 
-    def move(self):
-        if self.side = "b":
-            self.location[1] -= 1
-        elif self.side = "w":
-            self.location[1] += 1
+    def move(self, targetLocation):
+        #used only for first move of a pawn
+        if targetLocation == self.location:
+            if self.side == "b":
+                if targetLocation[1] == self.location[1] - 2 or targetLocation[1] == self.location[1] - 2:
+                    return True
+                else:
+                    return False
+            elif self.side == "w":
+                if targetLocation[1] == self.location[1] + 2 or targetLocation[1] == self.location[1] - 2:
+                    return True
+                else:
+                    return False
+
+        #used for subsequent moves beyond the first
+        if self.side == "b":
+            if targetLocation[1] == self.location[1] - 1:
+                return True
+            else:
+                return False
+        elif self.side == "w":
+            if targetLocation[1] == self.location[1] + 1:
+                return True
+            else:
+                return False
 
 class Knight(Piece):
     def __init__(self, side, location, displayValue, scoreValue):
@@ -74,6 +96,7 @@ class King(Piece):
 
 class Chess_Board():
     def __init__(self, pieces):
+        self.pieces = pieces
         board = []
         for row in range(8):
             column = []
@@ -86,7 +109,8 @@ class Chess_Board():
             pieceLocation = pieces[index].location
             board[pieceLocation[1]][pieceLocation[0]] = str(pieces[index].displayValue).format()
             #print(pieces[index].side, pieces[index].location, pieces[index].displayValue, pieces[index].scoreValue)
-        self.displayBoard(board)
+        #self.displayBoard(board)
+        self.board = board
 
     def displayBoard(self, board):
         rowNum = 8
@@ -104,7 +128,28 @@ class Chess_Board():
             print("   {} ".format(letter), end="")
         print("\n")
 
+def clearScreen():
+    os.system('clear')
 
+def parser(coordinates):
+    string = coordinates
+    string.translate(None, '')
+    #placeholder, next thing to start working on
+    
+
+def Game(createdBoard):
+    winner = False
+    while winner != True:
+        clearScreen()
+        print(createdBoard.displayBoard(createdBoard.board))
+        winner = True
+        source = input("Please provide coordinates of the piece you want to move[x, y]: ")
+        santizedSource = #parser(source)
+        destination = input("Please provide the target destination for the piece you want to move[x, y]: ")
+        #parser(destination)
+        sanitzedDestiaton = parser(destination)
+        print(source)
+        print(destination)
 # Pawn: 1 point (or pawn)
 # Knight: 3 points.
 # Bishop: 3 points.
@@ -149,39 +194,6 @@ bb2 = Bishop("b", [5, 0], "bb", 3)
 bkn2 = Knight("b", [6, 0], "bn", 3)
 br2 = Rook("b", [7, 0], "br", 5)
 
-board = Chess_Board([bp1, wp1, bp2, wp2, bp3, wp3, bp4, wp4, bp5, wp5, bp6, wp6, bp7, wp7, bp8, wp8, br, wr, bkn, wkn, bb, wb, bq, wq, bk, wk, bb2, wb2, bkn2, wkn2, br2, wr2])
+createdBoard = Chess_Board([bp1, wp1, bp2, wp2, bp3, wp3, bp4, wp4, bp5, wp5, bp6, wp6, bp7, wp7, bp8, wp8, br, wr, bkn, wkn, bb, wb, bq, wq, bk, wk, bb2, wb2, bkn2, wkn2, br2, wr2])
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# class Chess_Board():
-#     def __init__(self):
-#         board = [['    '] * 8] * 8
-#         self.displayBoard(board)
-        
-#     def displayBoard(self, board):
-#         rowNum = 8
-#         print("  ", end="")
-#         for row in board:
-#             print("-" * 41)
-#             print(str(rowNum), end=" ")
-#             rowNum -= 1
-#             for column in row:
-#                 print("|{}".format(column), end="")
-#             print("|")
-#             print("  ", end="")
-#         print("-" * 41)
-#         for letter in ["a", "b", "c", "d", "e", "f", "g", "h"]:
-#             print("   {} ".format(letter), end="")
-#         print("\n")
+Game(createdBoard)
