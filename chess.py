@@ -22,13 +22,15 @@ class Piece():
 class Pawn(Piece):
     #define movement to pass to move
     def __init__(self, side, location, displayValue, scoreValue):
+        super().__init__(location, displayValue)
         self.side = side
         self.location = location
         self.displayValue = displayValue
         self.scoreValue = scoreValue
-        super().__init__(location, displayValue)
+        self.firstMoveUsed = False
 
     def move(self, targetLocation):
+        #########fix move for pawn############
         #used only for first move of a pawn
         if targetLocation == self.location:
             if self.side == "b":
@@ -57,6 +59,10 @@ class Pawn(Piece):
 class Knight(Piece):
     def __init__(self, side, location, displayValue, scoreValue):
         super().__init__(location, displayValue)
+        self.side = side
+        self.location = location
+        self.displayValue = displayValue
+        self.scoreValue = scoreValue
 
     #define movement to pass to move
     def move(self):
@@ -65,6 +71,10 @@ class Knight(Piece):
 class Rook(Piece):
     def __init__(self, side, location, displayValue, scoreValue):
         super().__init__(location, displayValue)
+        self.side = side
+        self.location = location
+        self.displayValue = displayValue
+        self.scoreValue = scoreValue
 
     #define movement to pass to move
     def move(self):
@@ -73,6 +83,10 @@ class Rook(Piece):
 class Queen(Piece):
     def __init__(self, side, location, displayValue, scoreValue):
         super().__init__(location, displayValue)
+        self.side = side
+        self.location = location
+        self.displayValue = displayValue
+        self.scoreValue = scoreValue
 
     #define movement to pass to move
     def move(self):
@@ -81,6 +95,10 @@ class Queen(Piece):
 class Bishop(Piece):
     def __init__(self, side, location, displayValue, scoreValue):
         super().__init__(location, displayValue)
+        self.side = side
+        self.location = location
+        self.displayValue = displayValue
+        self.scoreValue = scoreValue
 
     #define movement to pass to move
     def move(self):
@@ -89,6 +107,10 @@ class Bishop(Piece):
 class King(Piece):
     def __init__(self, side, location, displayValue, scoreValue):
         super().__init__(location, displayValue)
+        self.side = side
+        self.location = location
+        self.displayValue = displayValue
+        self.scoreValue = scoreValue
 
     #define movement to pass to move
     def move(self):
@@ -132,7 +154,8 @@ def clearScreen():
     os.system('clear')
 
 def parser(coordinates):
-    chessFile = {"a":"0", "b":"1", "c":"2", "d":"3", "e":"4", "f":"5", "g":"6", "h":"7"}
+    chessRank = {"a":"0", "b":"1", "c":"2", "d":"3", "e":"4", "f":"5", "g":"6", "h":"7"}
+    chessFile = {"1":"7", "2":"6", "3":"5", "4":"4", "5":"3", "6":"2", "7":"1", "8":"0"}
     string = re.sub('[\[!@#%$\s+\][i-z][A-Z],', '', coordinates)
     pattern = "[a-h]"
     parsedCoordinates = []
@@ -142,29 +165,27 @@ def parser(coordinates):
             return False
         else:
             if re.match(pattern, coordinates[0]):
-                parsedCoordinates.append(chessFile[coordinates[0]])
-                parsedCoordinates.append(coordinates[3])
+                parsedCoordinates.append(chessRank[coordinates[0]])
+                parsedCoordinates.append(chessFile[coordinates[3]])
                 return parsedCoordinates
             else:
                 parsedCoordinates.append(coordinates[0])
-                parsedCoordinates.append(coordinates[3])
+                parsedCoordinates.append(chessFile[coordinates[3]])
                 return parsedCoordinates
     except:
         return False
 
 class Player1():
-    def __init__(self, name, color, points, turn):
+    def __init__(self, name, side, points):
         self.name = name
         self.points = points
-        self.color = color
-        self.turn = turn
+        self.side = side
 
 class Player2():
-    def __init__(self, name, color, points, turn):
+    def __init__(self, name, side, points):
         self.name = name
         self.points = points
-        self.color = color
-        self.turn = turn
+        self.side = side
 
 def Game(createdBoard, player1, player2):
     turn = 1
@@ -196,28 +217,44 @@ def Game(createdBoard, player1, player2):
         print(currentPlayer.name + '\'s Turn')
         print(createdBoard.displayBoard(createdBoard.board))
         while True:
+            sourcePiece = None
             source = input("Please provide source coordinates of the piece you want to move[x, y]: ")
             sanitizedSource = parser(source)
-
+            print(sanitizedSource)
             if sanitizedSource == False:
                 print("Incorrect Source Coordinates, Please Try Again")
                 continue
             else:
-                #################start working on tomorrow
                 for piece in createdBoard.pieces:
-                        index = createdBoard.pieces.index(piece)
-                        pieceLocation = createdBoard.pieces[index].location
-                        print(createdBoard.pieces[index].location)
+                    location = piece.location
+                    if int(sanitizedSource[0]) == int(location[0]) and int(sanitizedSource[1]) == int(location[1]):
+                        sourcePiece = piece               
+                if sourcePiece == None:
+                    print("Piece not found!")
+                    continue
+                else:
+                    side = sourcePiece.side
+                    if currentPlayer.side != side:
+                        print("Player does not own the piece " + str(sourcePiece.displayValue) + "!")
+                        continue
                 break
 
         while True:
             source = input("Please provide destination coordinates of the piece you want to move[x, y]: ")
             sanitizedDestination = parser(source)
-
             if sanitizedDestination == False:
                 print("Incorrect Destination Coordinates, Please Try Again")
                 continue
             else:
+                for piece in createdBoard.pieces:
+                    location = piece.location
+                    if int(sanitizedDestination[0]) == int(location[0]) and int(sanitizedDestination[1]) == int(location[1]):
+                        side = piece.side
+                        if currentPlayer.side == side:
+                            print("Not a valid move, destination contains ally piece!")
+                        else:
+                        ################################work on next####################
+                            piece.move()
                 break
         
         print('source: ' + str(sanitizedSource))
@@ -264,8 +301,8 @@ bb2 = Bishop("b", [5, 0], "bb", 3)
 bkn2 = Knight("b", [6, 0], "bn", 3)
 br2 = Rook("b", [7, 0], "br", 5)
 
-player1 = Player1("player1111","w", 0, True)
-player2 = Player2("player2222","b", 0, False)
+player1 = Player1("player1111","w", 0)
+player2 = Player2("player2222","b", 0)
 createdBoard = Chess_Board([bp1, wp1, bp2, wp2, bp3, wp3, bp4, wp4, bp5, wp5, bp6, wp6, bp7, wp7, bp8, wp8, br, wr, bkn, wkn, bb, wb, bq, wq, bk, wk, bb2, wb2, bkn2, wkn2, br2, wr2])
 
 Game(createdBoard, player1, player2)
