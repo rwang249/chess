@@ -138,6 +138,21 @@ class Chess_Board():
         #self.displayBoard(board)
         self.board = board
 
+    def updateBoard(self, pieces):
+        self.pieces = pieces
+        board = []
+        for row in range(8):
+            column = []
+            board.append(column)
+            for columnNum in range(8):
+                column.append('  ')
+        
+        for piece in pieces:
+            index = pieces.index(piece)
+            pieceLocation = pieces[index].location
+            board[pieceLocation[1]][pieceLocation[0]] = str(pieces[index].displayValue).format()
+        self.board = board
+
     def displayBoard(self, board):
         rowNum = 8
         print("  ", end="")
@@ -208,14 +223,6 @@ def Game(createdBoard, player1, player2):
             print("turn error!")
         #remove once you have actual game logic
         #winner = True
-
-        ####################
-        #REFERENCE
-        # for piece in createdBoard.pieces:
-        #     index = createdBoard.pieces.index(piece)
-        #     pieceLocation = createdBoard.pieces[index].location
-        #     print(createdBoard.pieces[index].location)
-        ##############################
         
         #start turn
         print("Turn " + str(turn))
@@ -270,7 +277,7 @@ def Game(createdBoard, player1, player2):
                 #complete tomorrow
                 validMove = sourcePiece.move(sanitizedDestination)
                 if validMove == True:
-                    print("asdfasdf")
+                    createdBoard.updateBoard(createdBoard.pieces)
                 else:
                     print("Not a valid location for piece!")
                     continue
