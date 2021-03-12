@@ -28,18 +28,17 @@ class Pawn(Piece):
         self.firstMoveUsed = False
 
     def move(self, targetLocation):
-        #########fix move for pawn############
         #used only for first move of a pawn
         if self.firstMoveUsed == False:
             if self.side == "b":
-                if int(targetLocation[1]) == int(self.location[1]) + 1 or int(targetLocation[1]) == int(self.location[1]) + 2:
+                if int(targetLocation[1]) == int(self.location[1]) + 1 or int(targetLocation[1]) == int(self.location[1]) + 2 and int(targetLocation[0]) == int(self.location[0]):
                     self.location[1] = int(targetLocation[1])
                     self.firstMoveUsed = True
                     return True
                 else:
                     return False
             elif self.side == "w":
-                if int(targetLocation[1]) == int(self.location[1]) - 1 or int(targetLocation[1]) == int(self.location[1]) - 2:
+                if int(targetLocation[1]) == int(self.location[1]) - 1 or int(targetLocation[1]) == int(self.location[1]) - 2 and int(targetLocation[0]) == int(self.location[0]):
                     self.location[1] = int(targetLocation[1])
                     self.firstMoveUsed = True
                     return True
@@ -48,13 +47,30 @@ class Pawn(Piece):
 
         #used for subsequent moves beyond the first
         if self.side == "b":
-            if int(targetLocation[1]) == int(self.location[1]) + 1:
+            if int(targetLocation[1]) == int(self.location[1]) + 1 and int(targetLocation[0]) == int(self.location[0]):
                 self.location[1] = int(targetLocation[1])
                 return True
             else:
                 return False
         elif self.side == "w":
-            if int(targetLocation[1]) == int(self.location[1]) - 1:
+            if int(targetLocation[1]) == int(self.location[1]) - 1 and int(targetLocation[0]) == int(self.location[0]):
+                self.location[1] = int(targetLocation[1])
+                return True
+            else:
+                return False
+
+    def attack(self, targetLocation):
+        #method used only for pawns
+        if self.side == "b":
+            if int(targetLocation[1]) == int(self.location[1]) + 1 and int(targetLocation[0]) == int(self.location[0]) + 1 or int(targetLocation[0]) == int(self.location[0]) - 1:
+                self.location[0] = int(targetLocation[0])
+                self.location[1] = int(targetLocation[1])
+                return True
+            else:
+                return False
+        elif self.side == "w":
+            if int(targetLocation[1]) == int(self.location[1]) - 1 and int(targetLocation[0]) == int(self.location[0]) + 1 or int(targetLocation[0]) == int(self.location[0]) - 1:
+                self.location[0] = int(targetLocation[0])
                 self.location[1] = int(targetLocation[1])
                 return True
             else:
@@ -211,7 +227,6 @@ def Game(createdBoard, player1, player2):
     turn = 1
     winner = False
     while winner != True:
-
         clearScreen()
         
         #Iterate Players
@@ -252,6 +267,7 @@ def Game(createdBoard, player1, player2):
                 break
 
         while True:
+            enemyPiece = False
             source = input("Please provide destination coordinates of the piece you want to move[x, y]: ")
             sanitizedDestination = parser(source)
             print("destination" + str(sanitizedDestination))
@@ -271,12 +287,17 @@ def Game(createdBoard, player1, player2):
                             print("Not a valid move, destination contains ally piece!")
                             continue
                         else:
-                            #complete tomorrow
-                            print("enemy capture code")
+                            enemyPiece = piece
                 
-                #complete tomorrow
-                validMove = sourcePiece.move(sanitizedDestination)
-                if validMove == True:
+                if enemyPiece == False and sourcePiece.displayValue != "bp" or sourcePiece.displayValue != "wp":
+                    validMove = sourcePiece.move(sanitizedDestination)
+                else:
+                    validMove = sourcePiece.attack(sanitizedDestination)
+
+                if validMove == True and enemyPiece != False:
+                    createdBoard.pieces.remove(enemyPiece)
+                    createdBoard.updateBoard(createdBoard.pieces)
+                elif validMove == True:
                     createdBoard.updateBoard(createdBoard.pieces)
                 else:
                     print("Not a valid location for piece!")
