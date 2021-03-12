@@ -14,8 +14,6 @@ import re
 class Piece():
     #initalize piece
     def __init__(self, location, displayValue):
-        #startLocation = location
-        #print(location)
         self.location = location
         self.displayValue = displayValue
         
@@ -32,26 +30,32 @@ class Pawn(Piece):
     def move(self, targetLocation):
         #########fix move for pawn############
         #used only for first move of a pawn
-        if targetLocation == self.location:
+        if self.firstMoveUsed == False:
             if self.side == "b":
-                if targetLocation[1] == self.location[1] - 2 or targetLocation[1] == self.location[1] - 2:
+                if int(targetLocation[1]) == int(self.location[1]) + 1 or int(targetLocation[1]) == int(self.location[1]) + 2:
+                    self.location[1] = int(targetLocation[1])
+                    self.firstMoveUsed = True
                     return True
                 else:
                     return False
             elif self.side == "w":
-                if targetLocation[1] == self.location[1] + 2 or targetLocation[1] == self.location[1] - 2:
+                if int(targetLocation[1]) == int(self.location[1]) - 1 or int(targetLocation[1]) == int(self.location[1]) - 2:
+                    self.location[1] = int(targetLocation[1])
+                    self.firstMoveUsed = True
                     return True
                 else:
                     return False
 
         #used for subsequent moves beyond the first
         if self.side == "b":
-            if targetLocation[1] == self.location[1] - 1:
+            if int(targetLocation[1]) == int(self.location[1]) + 1:
+                self.location[1] = int(targetLocation[1])
                 return True
             else:
                 return False
         elif self.side == "w":
-            if targetLocation[1] == self.location[1] + 1:
+            if int(targetLocation[1]) == int(self.location[1]) - 1:
+                self.location[1] = int(targetLocation[1])
                 return True
             else:
                 return False
@@ -188,6 +192,7 @@ class Player2():
         self.side = side
 
 def Game(createdBoard, player1, player2):
+    chessFile = {"1":"7", "2":"6", "3":"5", "4":"4", "5":"3", "6":"2", "7":"1", "8":"0"}
     turn = 1
     winner = False
     while winner != True:
@@ -202,7 +207,7 @@ def Game(createdBoard, player1, player2):
         else:
             print("turn error!")
         #remove once you have actual game logic
-        winner = True
+        #winner = True
 
         ####################
         #REFERENCE
@@ -220,7 +225,7 @@ def Game(createdBoard, player1, player2):
             sourcePiece = None
             source = input("Please provide source coordinates of the piece you want to move[x, y]: ")
             sanitizedSource = parser(source)
-            print(sanitizedSource)
+            print("source" + str(sanitizedSource))
             if sanitizedSource == False:
                 print("Incorrect Source Coordinates, Please Try Again")
                 continue
@@ -242,23 +247,34 @@ def Game(createdBoard, player1, player2):
         while True:
             source = input("Please provide destination coordinates of the piece you want to move[x, y]: ")
             sanitizedDestination = parser(source)
+            print("destination" + str(sanitizedDestination))
+
+            print("source piece location" + str(sourcePiece.location))
             if sanitizedDestination == False:
                 print("Incorrect Destination Coordinates, Please Try Again")
                 continue
             else:
+                #check for piece in target location
                 for piece in createdBoard.pieces:
                     location = piece.location
+
                     if int(sanitizedDestination[0]) == int(location[0]) and int(sanitizedDestination[1]) == int(location[1]):
                         side = piece.side
                         if currentPlayer.side == side:
                             print("Not a valid move, destination contains ally piece!")
+                            continue
                         else:
-                        ################################work on next####################
-                            piece.move()
+                            #complete tomorrow
+                            print("enemy capture code")
+                
+                #complete tomorrow
+                validMove = sourcePiece.move(sanitizedDestination)
+                if validMove == True:
+                    print("asdfasdf")
+                else:
+                    print("Not a valid location for piece!")
+                    continue
                 break
-        
-        print('source: ' + str(sanitizedSource))
-        print('destination: ' + str(sanitizedDestination))
 
         turn += 1
 
