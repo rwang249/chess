@@ -85,8 +85,12 @@ class Knight(Piece):
         self.scoreValue = scoreValue
 
     #define movement to pass to move
-    def move(self):
-        print('placeholder for move')
+    def move(self, targetLocation):
+        if int(targetLocation[1]) == int(self.location[1]) + 1 or int(targetLocation[1]) == int(self.location[1]) + 2 and int(targetLocation[0]) == int(self.location[0]):
+            self.location[1] = int(targetLocation[1])
+            return True
+        else:
+            return False
 
 class Rook(Piece):
     def __init__(self, side, location, displayValue, scoreValue):
