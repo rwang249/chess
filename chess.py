@@ -125,15 +125,11 @@ class Rook(Piece):
 
     #define movement to pass to move
     def move(self, targetLocation):
-        valid = False
-        if int(targetLocation[1]) == int(self.location[1]) + 7 or int(targetLocation[1]) == int(self.location[1]) - 7: 
-                valid = True
-        elif int(targetLocation[0]) == int(self.location[0]) + 7 or int(targetLocation[0]) == int(self.location[0]) - 7:
-                valid = True
-        else:
-            valid = False
-        
-        if valid == True:
+        if int(targetLocation[0]) <= 7 and int(targetLocation[1]) == self.location[1]:
+            self.location[0] = int(targetLocation[0])
+            self.location[1] = int(targetLocation[1])
+            return True
+        elif int(targetLocation[1]) <= 7 and int(targetLocation[0]) == self.location[0]: 
             self.location[0] = int(targetLocation[0])
             self.location[1] = int(targetLocation[1])
             return True
@@ -235,37 +231,52 @@ class Chess_Board():
         print("\n")
 
     def collisionChecker(self, pieces, sourcePiece, destination):
-        chessFile = {"7":"1", "6":"2", "5":"3", "4":"4", "3":"5", "2":"6", "1":"7", "0":"8"}
+        chessFile = {7:1, 6:2, 5:3, 4:4, 3:5, 2:6, 1:7, 0:8}
         #calculate displacement
         displacement = []
         displacement.append(int(sourcePiece.location[0]) - int(destination[0]))
         displacement.append(int(sourcePiece.location[1]) - int(destination[1]))
- 
-        #chessFile[coordinates[3]]
-        #print(int(chessFile[int(sourcePiece.location[1])]))
-        print(destination)
-        print(int(sourcePiece.location[1]) - int(destination[1]))
+
+        if displacement[0] > 0:
+            xDisplacementDirection = "east"
+        elif displacement[0] < 0:
+            xDisplacementDirection = "west"
+        else:
+            xDisplacementDirection = ""
+        
+        if displacement[1] > 0:
+            yDisplacementDirection = "north"
+        elif displacement[1] < 0:
+            yDisplacementDirection = "south"
+        else:
+            yDisplacementDirection = ""
+
         #x Axis
         if displacement[0] != 0:
-            for step in (range(abs(int(displacement[0])))):
+            for step in (range(abs(int(displacement[0] + 1)))):
                 for piece in pieces:
-                    if (int(sourcePiece.location[1]) == int(piece.location[1]) and int(sourcePiece.location[0] + step) == int(piece.location[0]) and sourcePiece != piece) \
-                    or (int(sourcePiece.location[1]) == int(piece.location[1]) and int(sourcePiece.location[0] - step) == int(piece.location[0]) and sourcePiece != piece):
+                    if (int(sourcePiece.location[1]) == int(piece.location[1]) and int(sourcePiece.location[0] + step) == int(piece.location[0]) and sourcePiece != piece and xDisplacementDirection == "west") \
+                    or (int(sourcePiece.location[1]) == int(piece.location[1]) and int(sourcePiece.location[0] - step) == int(piece.location[0]) and sourcePiece != piece and xDisplacementDirection == "east"):
                         return True
-                    else:
-                        return False
                     
         #y Axis
         elif displacement[1] != 0:
-            for step in (range(abs(int(displacement[1])))):
+            for step in (range(abs(int(displacement[1] + 1)))):
                 for piece in pieces:
-                    if (int(sourcePiece.location[0])  == int(piece.location[0]) and int(sourcePiece.location[1] + step) == int(piece.location[1]) and sourcePiece != piece) \
-                    or (int(sourcePiece.location[0])  == int(piece.location[0]) and int(sourcePiece.location[1] - step) == int(piece.location[1]) and sourcePiece != piece)    :
+                    if (int(sourcePiece.location[0]) == int(piece.location[0]) and int(sourcePiece.location[1] - step) == int(piece.location[1]) and piece != sourcePiece and yDisplacementDirection == "north") \
+                    or (int(sourcePiece.location[0]) == int(piece.location[0]) and int(sourcePiece.location[1] + step) == int(piece.location[1]) and piece != sourcePiece and yDisplacementDirection == "south"):
                         return True
-                    else:
-                        return False
+        return False
 
-
+    def allyChecker(self, pieces, currentPlayer, sanitizedDestination):
+        for piece in pieces:
+            location = piece.location
+            if int(sanitizedDestination[0]) == int(location[0]) and int(sanitizedDestination[1]) == int(location[1]):
+                side = piece.side
+                if currentPlayer.side == side:
+                    return True
+                else:
+                    return False
 
 def clearScreen():
     os.system('clear')
@@ -309,7 +320,7 @@ def Game(createdBoard, player1, player2):
     turn = 1
     winner = False
     while winner != True:
-        clearScreen()
+        #clearScreen()
         
         #Iterate Players
         if (turn % 2) == 1:
@@ -329,7 +340,7 @@ def Game(createdBoard, player1, player2):
             sourcePiece = None
             source = input("Please provide source coordinates of the piece you want to move[x, y]: ")
             sanitizedSource = parser(source)
-            print("source" + str(sanitizedSource))
+            #print("source" + str(sanitizedSource))
             if sanitizedSource == False:
                 print("Incorrect Source Coordinates, Please Try Again")
                 continue
@@ -350,36 +361,38 @@ def Game(createdBoard, player1, player2):
 
         while True:
             enemyPiece = False
-            source = input("Please provide destination coordinates of the piece you want to move[x, y]: ")
-            sanitizedDestination = parser(source)
-            print("destination" + str(sanitizedDestination))
+            dest = input("Please provide destination coordinates of the piece you want to move[x, y]: ")
+            sanitizedDestination = parser(dest)
+            #print("destination" + str(sanitizedDestination))
+            #print("source piece location" + str(sourcePiece.location))
 
-            print("source piece location" + str(sourcePiece.location))
             if sanitizedDestination == False:
                 print("Incorrect Destination Coordinates, Please Try Again")
                 continue
             else:
                 #check for piece in target location
-                for piece in createdBoard.pieces:
-                    location = piece.location
+                ally = createdBoard.allyChecker(createdBoard.pieces, currentPlayer, sanitizedDestination)
+                if ally == True:
+                    print("Not a valid move, destination contains ally piece!")
+                    continue
+                elif ally == False:
+                    enemyPiece = piece
 
-                    if int(sanitizedDestination[0]) == int(location[0]) and int(sanitizedDestination[1]) == int(location[1]):
-                        side = piece.side
-                        if currentPlayer.side == side:
-                            print("Not a valid move, destination contains ally piece!")
-                            continue
-                        else:
-                            enemyPiece = piece
-
-                if enemyPiece == False and sourcePiece.displayValue != "bp" or sourcePiece.displayValue != "wp":
-                    #print("hit")
-                    validMove = sourcePiece.move(sanitizedDestination)
-                    collision = createdBoard.collisionChecker(createdBoard.pieces, sourcePiece, sanitizedDestination)
+                #check for collisions
+                collision = createdBoard.collisionChecker(createdBoard.pieces, sourcePiece, sanitizedDestination)   
+                if collision == True:
+                    print("Collision!")
+                    continue
                 else:
-                    #print("shit")
-                    validMove = sourcePiece.attack(sanitizedDestination)
-                    collision = createdBoard.collisionChecker(createdBoard.pieces, sourcePiece, sanitizedDestination)
+                    print("No Collision!")
 
+                if enemyPiece == False and sourcePiece.displayValue != "bp" or sourcePiece.displayValue != "wp" and collision == False:
+                    validMove = sourcePiece.move(sanitizedDestination)
+                elif enemyPiece != False and sourcePiece.displayValue == "bp" or sourcePiece.displayValue == "wp" and collision == False:
+                    validMove = sourcePiece.attack(sanitizedDestination)
+                elif enemyPiece == False and collision == False:
+                    validMove = sourcePiece.move(sanitizedDestination)
+                
                 if validMove == True and enemyPiece != False and collision == False:
                     createdBoard.pieces.remove(enemyPiece)
                     createdBoard.updateBoard(createdBoard.pieces)
@@ -389,7 +402,6 @@ def Game(createdBoard, player1, player2):
                     print("Not a valid location for piece!")
                     continue
                 break
-
         turn += 1
 
 #Create pieces
