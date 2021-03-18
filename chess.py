@@ -148,8 +148,25 @@ class Queen(Piece):
         self.distance = distance
 
     #define movement to pass to move
-    def move(self):
-        print('placeholder for move')
+    ##########finish movement
+    def move(self, targetLocation):
+        diagonal = [(1,1),(-1,1),(1,-1),(-1,-1)]
+        #perpendicular
+        if int(targetLocation[0]) <= 7 and int(targetLocation[1]) == self.location[1]:
+            self.location[0] = int(targetLocation[0])
+            self.location[1] = int(targetLocation[1])
+            return True
+        elif int(targetLocation[1]) <= 7 and int(targetLocation[0]) == self.location[0]: 
+            self.location[0] = int(targetLocation[0])
+            self.location[1] = int(targetLocation[1])
+            return True
+        
+        #diagonal
+        for x, y in diagonal:
+            for step in range(1, 7):
+                if int(targetLocation[0]) == (self.location + x + step) and int(targetLocation[1]) == (self.location + y + step):
+                    return True
+        return False
 
 class Bishop(Piece):
     def __init__(self, side, location, displayValue, scoreValue, perpendicular, diagonal, distance):
@@ -163,8 +180,18 @@ class Bishop(Piece):
         self.distance = distance
 
     #define movement to pass to move
-    def move(self):
-        print('placeholder for move')
+    def move(self, targetLocation):
+        #######finish movement
+        diagonal = [(1,1),(-1,1),(1,-1),(-1,-1)]
+        
+        #diagonal
+        for x, y in diagonal:
+            for step in range(1, 7):
+                if int(targetLocation[0]) == int(self.location[0]) + int(x * step) and int(targetLocation[1]) == int(self.location[1]) + int(y * step):
+                    self.location[0] = int(targetLocation[0])
+                    self.location[1] = int(targetLocation[1])
+                    return True
+        return False
 
 class King(Piece):
     def __init__(self, side, location, displayValue, scoreValue, perpendicular, diagonal, distance):
@@ -178,7 +205,7 @@ class King(Piece):
         self.distance = distance
 
     #define movement to pass to move
-    def move(self):
+    def move(self, targetLocation):
         print('placeholder for move')
 
 class Chess_Board():
@@ -231,41 +258,79 @@ class Chess_Board():
         print("\n")
 
     def collisionChecker(self, pieces, sourcePiece, destination):
-        chessFile = {7:1, 6:2, 5:3, 4:4, 3:5, 2:6, 1:7, 0:8}
+        #### finish for diagonal#####
         #calculate displacement
         displacement = []
-        displacement.append(int(sourcePiece.location[0]) - int(destination[0]))
-        displacement.append(int(sourcePiece.location[1]) - int(destination[1]))
+        displacement.append(int(destination[0]) - int(sourcePiece.location[0]))
+        displacement.append(int(destination[1]) - int(sourcePiece.location[1]))
 
-        if displacement[0] > 0:
-            xDisplacementDirection = "east"
-        elif displacement[0] < 0:
-            xDisplacementDirection = "west"
-        else:
-            xDisplacementDirection = ""
-        
-        if displacement[1] > 0:
-            yDisplacementDirection = "north"
-        elif displacement[1] < 0:
-            yDisplacementDirection = "south"
-        else:
-            yDisplacementDirection = ""
+        if sourcePiece.perpendicular == True and sourcePiece.diagonal == True:
+            print("queen")
+        elif sourcePiece.perpendicular == True:
+            if displacement[0] > 0:
+                xDisplacementDirection = "east"
+            elif displacement[0] < 0:
+                xDisplacementDirection = "west"
+            else:
+                xDisplacementDirection = ""
+            
+            if displacement[1] > 0:
+                yDisplacementDirection = "north"
+            elif displacement[1] < 0:
+                yDisplacementDirection = "south"
+            else:
+                yDisplacementDirection = ""
 
-        #x Axis
-        if displacement[0] != 0:
-            for step in (range(abs(int(displacement[0] + 1)))):
-                for piece in pieces:
-                    if (int(sourcePiece.location[1]) == int(piece.location[1]) and int(sourcePiece.location[0] + step) == int(piece.location[0]) and sourcePiece != piece and xDisplacementDirection == "west") \
-                    or (int(sourcePiece.location[1]) == int(piece.location[1]) and int(sourcePiece.location[0] - step) == int(piece.location[0]) and sourcePiece != piece and xDisplacementDirection == "east"):
-                        return True
-                    
-        #y Axis
-        elif displacement[1] != 0:
-            for step in (range(abs(int(displacement[1] + 1)))):
-                for piece in pieces:
-                    if (int(sourcePiece.location[0]) == int(piece.location[0]) and int(sourcePiece.location[1] - step) == int(piece.location[1]) and piece != sourcePiece and yDisplacementDirection == "north") \
-                    or (int(sourcePiece.location[0]) == int(piece.location[0]) and int(sourcePiece.location[1] + step) == int(piece.location[1]) and piece != sourcePiece and yDisplacementDirection == "south"):
-                        return True
+            #x Axis
+            if displacement[0] != 0:
+                for step in (range(abs(int(displacement[0] + 1)))):
+                    for piece in pieces:
+                        if (int(sourcePiece.location[1]) == int(piece.location[1]) and int(sourcePiece.location[0] + step) == int(piece.location[0]) and sourcePiece != piece and xDisplacementDirection == "west") \
+                        or (int(sourcePiece.location[1]) == int(piece.location[1]) and int(sourcePiece.location[0] - step) == int(piece.location[0]) and sourcePiece != piece and xDisplacementDirection == "east"):
+                            return True
+                        
+            #y Axis
+            elif displacement[1] != 0:
+                for step in (range(abs(int(displacement[1] + 1)))):
+                    for piece in pieces:
+                        if (int(sourcePiece.location[0]) == int(piece.location[0]) and int(sourcePiece.location[1] - step) == int(piece.location[1]) and piece != sourcePiece and yDisplacementDirection == "north") \
+                        or (int(sourcePiece.location[0]) == int(piece.location[0]) and int(sourcePiece.location[1] + step) == int(piece.location[1]) and piece != sourcePiece and yDisplacementDirection == "south"):
+                            return True      
+        elif sourcePiece.diagonal == True:
+
+            if displacement[0] > 0 and displacement[1] < 0:
+                diagDirection = "northeast"
+                diagonal = [(1,-1)]
+            elif displacement[0] < 0 and displacement[1] < 0:
+                diagDirection = "northwest"
+                diagonal = [(-1,-1)]
+            elif displacement[0] > 0 and displacement[1] > 0:
+                diagDirection = "southeast"
+                diagonal = [(1,1)]
+            elif displacement[0] < 0 and displacement[1] > 0:
+                diagDirection = "southwest"
+                diagonal = [(-1,1)]
+            else:
+                diagDirection = ""
+            
+            print(diagDirection)
+            # print(displacement)
+            # print(sourcePiece.location)
+            # print("diagonal", diagonal)
+
+            for x, y in diagonal:
+                for step in (range(1, abs(int(displacement[0])))):
+                    # print("x: ", str(sourcePiece.location[0] + (x * int(step))))
+                    # print("y: ",str(sourcePiece.location[1] + (y * int(step))))
+                    for piece in pieces:
+                        if (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] - (y * step)) and diagDirection == "northeast" and sourcePiece != piece and sourcePiece.side == piece.side) \
+                        or (int(piece.location[0]) == int(sourcePiece.location[0] - (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] - (y * step)) and diagDirection == "northwest" and sourcePiece != piece and sourcePiece.side == piece.side) \
+                        or (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step)) and diagDirection == "southeast" and sourcePiece != piece and sourcePiece.side == piece.side) \
+                        or (int(piece.location[0]) == int(sourcePiece.location[0] - (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step)) and diagDirection == "southwest" and sourcePiece != piece and sourcePiece.side == piece.side):
+                            print(sourcePiece.location)
+                            print(piece.displayValue)
+                            print(piece.location)
+                            return True
         return False
 
     def allyChecker(self, pieces, currentPlayer, sanitizedDestination):
@@ -372,11 +437,13 @@ def Game(createdBoard, player1, player2):
             else:
                 #check for piece in target location
                 ally = createdBoard.allyChecker(createdBoard.pieces, currentPlayer, sanitizedDestination)
+                print(ally)
                 if ally == True:
                     print("Not a valid move, destination contains ally piece!")
                     continue
                 elif ally == False:
                     enemyPiece = piece
+                
 
                 #check for collisions
                 collision = createdBoard.collisionChecker(createdBoard.pieces, sourcePiece, sanitizedDestination)   
