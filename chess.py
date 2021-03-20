@@ -164,7 +164,9 @@ class Queen(Piece):
         #diagonal
         for x, y in diagonal:
             for step in range(1, 7):
-                if int(targetLocation[0]) == (self.location + x + step) and int(targetLocation[1]) == (self.location + y + step):
+                if int(targetLocation[0]) == int(self.location[0]) + int(x * step) and int(targetLocation[1]) == int(self.location[1]) + int(y * step):
+                    self.location[0] = int(targetLocation[0])
+                    self.location[1] = int(targetLocation[1])
                     return True
         return False
 
@@ -181,7 +183,6 @@ class Bishop(Piece):
 
     #define movement to pass to move
     def move(self, targetLocation):
-        #######finish movement
         diagonal = [(1,1),(-1,1),(1,-1),(-1,-1)]
         
         #diagonal
@@ -222,8 +223,6 @@ class Chess_Board():
             index = pieces.index(piece)
             pieceLocation = pieces[index].location
             board[pieceLocation[1]][pieceLocation[0]] = str(pieces[index].displayValue).format()
-            #print(pieces[index].side, pieces[index].location, pieces[index].displayValue, pieces[index].scoreValue)
-        #self.displayBoard(board)
         self.board = board
 
     def updateBoard(self, pieces):
@@ -263,85 +262,169 @@ class Chess_Board():
         displacement = []
         displacement.append(int(destination[0]) - int(sourcePiece.location[0]))
         displacement.append(int(destination[1]) - int(sourcePiece.location[1]))
+        occurrence = 0
 
         if sourcePiece.perpendicular == True and sourcePiece.diagonal == True:
-            print("queen")
-        elif sourcePiece.perpendicular == True:
-            if displacement[0] > 0:
-                xDisplacementDirection = "east"
-            elif displacement[0] < 0:
-                xDisplacementDirection = "west"
+            #specifically for queen
+            #east
+            if displacement[0] > 0 and displacement[1] == 0:
+                orthogonal = [1,0]
+            #west
+            elif displacement[0] < 0 and displacement[1] == 0:
+                orthogonal = [-1,0]
+            #north
+            elif displacement[1] < 0 and displacement[0] == 0:
+                orthogonal = [0,-1]
+            #south
+            elif displacement[1] > 0 and displacement[0] == 0:
+                orthogonal = [0,1]
             else:
-                xDisplacementDirection = ""
-            
-            if displacement[1] > 0:
-                yDisplacementDirection = "north"
-            elif displacement[1] < 0:
-                yDisplacementDirection = "south"
-            else:
-                yDisplacementDirection = ""
+                orthogonal = ""
 
-            #x Axis
-            if displacement[0] != 0:
-                for step in (range(abs(int(displacement[0] + 1)))):
-                    for piece in pieces:
-                        if (int(sourcePiece.location[1]) == int(piece.location[1]) and int(sourcePiece.location[0] + step) == int(piece.location[0]) and sourcePiece != piece and xDisplacementDirection == "west") \
-                        or (int(sourcePiece.location[1]) == int(piece.location[1]) and int(sourcePiece.location[0] - step) == int(piece.location[0]) and sourcePiece != piece and xDisplacementDirection == "east"):
-                            return True
-                        
-            #y Axis
-            elif displacement[1] != 0:
-                for step in (range(abs(int(displacement[1] + 1)))):
-                    for piece in pieces:
-                        if (int(sourcePiece.location[0]) == int(piece.location[0]) and int(sourcePiece.location[1] - step) == int(piece.location[1]) and piece != sourcePiece and yDisplacementDirection == "north") \
-                        or (int(sourcePiece.location[0]) == int(piece.location[0]) and int(sourcePiece.location[1] + step) == int(piece.location[1]) and piece != sourcePiece and yDisplacementDirection == "south"):
-                            return True      
-        elif sourcePiece.diagonal == True:
-
+            #northeast
             if displacement[0] > 0 and displacement[1] < 0:
-                diagDirection = "northeast"
                 diagonal = [(1,-1)]
+            #northwest
             elif displacement[0] < 0 and displacement[1] < 0:
-                diagDirection = "northwest"
                 diagonal = [(-1,-1)]
+            #southeast
             elif displacement[0] > 0 and displacement[1] > 0:
-                diagDirection = "southeast"
                 diagonal = [(1,1)]
+            #southwest
             elif displacement[0] < 0 and displacement[1] > 0:
-                diagDirection = "southwest"
                 diagonal = [(-1,1)]
             else:
-                diagDirection = ""
+                diagonal = ""
+
+            try:
+                if diagonal != "":
+                    for x, y in diagonal:
+                        for step in (range(1, abs(int(displacement[0])))):
+                            # print("x: ", str(sourcePiece.location[0] - (x * int(step))))
+                            # print("y: ",str(sourcePiece.location[1] - (y * int(step))))
+                            for piece in pieces:
+                                if (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step)) \
+                                and diagDirection == "northeast" and sourcePiece != piece and sourcePiece.side == piece.side):
+                                    print(sourcePiece.location)
+                                    print(piece.displayValue)
+                                    print(piece.location)
+                                    return True
+                #x Axis
+                if displacement[0] != 0 and orthogonal != "":
+                    for step in (range(abs(int(displacement[0] + 1)))):
+                        for piece in pieces:
+                            if int(sourcePiece.location[1]) == int(piece.location[1]) and (int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) == int(piece.location[0]) \
+                            and piece != sourcePiece:
+                                if sourcePiece.side == piece.side:
+                                    return True
+                                elif sourcePiece.side != piece.side:
+                                    return True
+                            
+                #y Axis
+                elif displacement[1] != 0 and orthogonal != "":
+                    for step in (range(1, abs(int(displacement[1])))):
+                        for piece in pieces:
+                            if int(sourcePiece.location[0]) == int(piece.location[0]) and (int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) == int(piece.location[1]) \
+                            and piece != sourcePiece:
+                                if sourcePiece.side == piece.side:
+                                    return True
+                                elif sourcePiece.side != piece.side:
+                                    return True
+            except:
+                return -1
             
-            print(diagDirection)
+            # print(diagDirection)
             # print(displacement)
             # print(sourcePiece.location)
             # print("diagonal", diagonal)
 
-            for x, y in diagonal:
-                for step in (range(1, abs(int(displacement[0])))):
-                    # print("x: ", str(sourcePiece.location[0] + (x * int(step))))
-                    # print("y: ",str(sourcePiece.location[1] + (y * int(step))))
+        elif sourcePiece.perpendicular == True and sourcePiece.diagonal == False:
+            #east
+            if displacement[0] > 0 and displacement[1] == 0:
+                orthogonal = [1,0]
+            #west
+            elif displacement[0] < 0 and displacement[1] == 0:
+                orthogonal = [-1,0]
+            #north
+            elif displacement[1] < 0 and displacement[0] == 0:
+                orthogonal = [0,-1]
+            #south
+            elif displacement[1] > 0 and displacement[0] == 0:
+                orthogonal = [0,1]
+            else:
+                orthogonal = ""
+
+###############PREVENT PIECES TO JUMP ENEMY PIECES#############
+            #x Axis
+            if displacement[0] != 0 and orthogonal != "":
+                for step in (range(abs(int(displacement[0] + 1)))):
                     for piece in pieces:
-                        if (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] - (y * step)) and diagDirection == "northeast" and sourcePiece != piece and sourcePiece.side == piece.side) \
-                        or (int(piece.location[0]) == int(sourcePiece.location[0] - (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] - (y * step)) and diagDirection == "northwest" and sourcePiece != piece and sourcePiece.side == piece.side) \
-                        or (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step)) and diagDirection == "southeast" and sourcePiece != piece and sourcePiece.side == piece.side) \
-                        or (int(piece.location[0]) == int(sourcePiece.location[0] - (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step)) and diagDirection == "southwest" and sourcePiece != piece and sourcePiece.side == piece.side):
-                            print(sourcePiece.location)
-                            print(piece.displayValue)
-                            print(piece.location)
-                            return True
+                        if int(sourcePiece.location[1]) == int(piece.location[1]) and (int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) == int(piece.location[0]) \
+                        and piece != sourcePiece:
+                            if sourcePiece.side == piece.side:
+                                return True
+                            elif sourcePiece.side != piece.side:
+                                return True
+                        
+            #y Axis
+            elif displacement[1] != 0 and orthogonal != "":
+                for step in (range(1, abs(int(displacement[1])))):
+                    for piece in pieces:
+                        if int(sourcePiece.location[0]) == int(piece.location[0]) and (int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) == int(piece.location[1]) \
+                        and piece != sourcePiece:
+                            if sourcePiece.side == piece.side:
+                                return True
+                            elif sourcePiece.side != piece.side:
+                                return True
+
+        elif sourcePiece.diagonal == True and sourcePiece.perpendicular == False:
+            #northeast
+            if displacement[0] > 0 and displacement[1] < 0:
+                diagonal = [(1,-1)]
+            #northwest
+            elif displacement[0] < 0 and displacement[1] < 0:
+                diagonal = [(-1,-1)]
+            #southeast
+            elif displacement[0] > 0 and displacement[1] > 0:
+                diagonal = [(1,1)]
+            #southwest
+            elif displacement[0] < 0 and displacement[1] > 0:
+                diagonal = [(-1,1)]
+            else:
+                diagonal = ""
+            
+            # print(diagDirection)
+            # print(displacement)
+            # print(sourcePiece.location)
+            # print("diagonal", diagonal)
+
+            try:
+                for x, y in diagonal:
+                    for step in (range(1, abs(int(displacement[0])))):
+                        # print("x: ", str(sourcePiece.location[0] - (x * int(step))))
+                        # print("y: ",str(sourcePiece.location[1] - (y * int(step))))
+                        for piece in pieces:
+                            if (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step)) \
+                            and diagDirection == "northeast" and sourcePiece != piece and sourcePiece.side == piece.side):
+                                print(sourcePiece.location)
+                                print(piece.displayValue)
+                                print(piece.location)
+                                return True
+            except:
+                return -1
         return False
 
     def allyChecker(self, pieces, currentPlayer, sanitizedDestination):
         for piece in pieces:
             location = piece.location
+
             if int(sanitizedDestination[0]) == int(location[0]) and int(sanitizedDestination[1]) == int(location[1]):
                 side = piece.side
                 if currentPlayer.side == side:
                     return True
                 else:
-                    return False
+                    return piece
+        return False
 
 def clearScreen():
     os.system('clear')
@@ -425,7 +508,6 @@ def Game(createdBoard, player1, player2):
                 break
 
         while True:
-            enemyPiece = False
             dest = input("Please provide destination coordinates of the piece you want to move[x, y]: ")
             sanitizedDestination = parser(dest)
             #print("destination" + str(sanitizedDestination))
@@ -441,14 +523,18 @@ def Game(createdBoard, player1, player2):
                 if ally == True:
                     print("Not a valid move, destination contains ally piece!")
                     continue
-                elif ally == False:
-                    enemyPiece = piece
+                elif ally != True and ally != False:
+                    enemyPiece = ally
+                else:
+                    enemyPiece = False
                 
-
                 #check for collisions
                 collision = createdBoard.collisionChecker(createdBoard.pieces, sourcePiece, sanitizedDestination)   
                 if collision == True:
                     print("Collision!")
+                    continue
+                elif collision == -1:
+                    print("Not a valid location!")
                     continue
                 else:
                     print("No Collision!")
@@ -473,23 +559,23 @@ def Game(createdBoard, player1, player2):
 
 #Create pieces
 #PAWNS
-wp1 = Pawn("w", [0, 6], "wp", 1, True, True, 1)
-wp2 = Pawn("w", [1, 6], "wp", 1, True, True, 1)
-wp3 = Pawn("w", [2, 6], "wp", 1, True, True, 1)
-wp4 = Pawn("w", [3, 6], "wp", 1, True, True, 1)
-wp5 = Pawn("w", [4, 6], "wp", 1, True, True, 1)
-wp6 = Pawn("w", [5, 6], "wp", 1, True, True, 1)
-wp7 = Pawn("w", [6, 6], "wp", 1, True, True, 1)
-wp8 = Pawn("w", [7, 6], "wp", 1, True, True, 1)
+wp1 = Pawn("w", [0, 6], "wp", 1, True, False, 1)
+wp2 = Pawn("w", [1, 6], "wp", 1, True, False, 1)
+wp3 = Pawn("w", [2, 6], "wp", 1, True, False, 1)
+wp4 = Pawn("w", [3, 6], "wp", 1, True, False, 1)
+wp5 = Pawn("w", [4, 6], "wp", 1, True, False, 1)
+wp6 = Pawn("w", [5, 6], "wp", 1, True, False, 1)
+wp7 = Pawn("w", [6, 6], "wp", 1, True, False, 1)
+wp8 = Pawn("w", [7, 6], "wp", 1, True, False, 1)
 
-bp1 = Pawn("b", [0, 1], "bp", 1, True, True, 1)
-bp2 = Pawn("b", [1, 1], "bp", 1, True, True, 1)
-bp3 = Pawn("b", [2, 1], "bp", 1, True, True, 1)
-bp4 = Pawn("b", [3, 1], "bp", 1, True, True, 1)
-bp5 = Pawn("b", [4, 1], "bp", 1, True, True, 1)
-bp6 = Pawn("b", [5, 1], "bp", 1, True, True, 1)
-bp7 = Pawn("b", [6, 1], "bp", 1, True, True, 1)
-bp8 = Pawn("b", [7, 1], "bp", 1, True, True, 1)
+bp1 = Pawn("b", [0, 1], "bp", 1, True, False, 1)
+bp2 = Pawn("b", [1, 1], "bp", 1, True, False, 1)
+bp3 = Pawn("b", [2, 1], "bp", 1, True, False, 1)
+bp4 = Pawn("b", [3, 1], "bp", 1, True, False, 1)
+bp5 = Pawn("b", [4, 1], "bp", 1, True, False, 1)
+bp6 = Pawn("b", [5, 1], "bp", 1, True, False, 1)
+bp7 = Pawn("b", [6, 1], "bp", 1, True, False, 1)
+bp8 = Pawn("b", [7, 1], "bp", 1, True, False, 1)
 
 #THE REST
 wr = Rook("w", [0, 7], "wr", 5, True, False, 7)
