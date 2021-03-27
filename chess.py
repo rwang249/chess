@@ -256,13 +256,22 @@ class Chess_Board():
             print("   {} ".format(letter), end="")
         print("\n")
 
-    def collisionChecker(self, pieces, sourcePiece, destination):
+    def collisionChecker(self, pieces, sourcePiece, destination, check, player):
         #### finish for diagonal#####
         #calculate displacement
         displacement = []
-        displacement.append(int(destination[0]) - int(sourcePiece.location[0]))
-        displacement.append(int(destination[1]) - int(sourcePiece.location[1]))
-        occurrence = 0
+
+        if check == True:
+            for piece in pieces:
+                index = pieces.index(piece)
+                if player.side != piece.side and (piece.displayValue == "wk" or piece.displayValue == "bk"):
+                    kingLocation = pieces[index].location
+                    king = piece
+                    displacement.append(int(kingLocation[0]) - int(sourcePiece.location[0]))
+                    displacement.append(int(kingLocation[1]) - int(sourcePiece.location[1]))
+        else:
+            displacement.append(int(destination[0]) - int(sourcePiece.location[0]))
+            displacement.append(int(destination[1]) - int(sourcePiece.location[1]))           
 
         if sourcePiece.perpendicular == True and sourcePiece.diagonal == True:
             #specifically for queen
@@ -304,7 +313,7 @@ class Chess_Board():
                             # print("y: ",str(sourcePiece.location[1] - (y * int(step))))
                             for piece in pieces:
                                 if (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step)) \
-                                and diagDirection == "northeast" and sourcePiece != piece and sourcePiece.side == piece.side):
+                                and sourcePiece != piece and sourcePiece.side == piece.side):
                                     print(sourcePiece.location)
                                     print(piece.displayValue)
                                     print(piece.location)
@@ -354,7 +363,7 @@ class Chess_Board():
             else:
                 orthogonal = ""
 
-###############PREVENT PIECES TO JUMP ENEMY PIECES#############
+            ###############PREVENT PIECES TO JUMP ENEMY PIECES(FIXED????)#############
             #x Axis
             if displacement[0] != 0 and orthogonal != "":
                 for step in (range(abs(int(displacement[0] + 1)))):
@@ -394,22 +403,30 @@ class Chess_Board():
                 diagonal = ""
             
             # print(diagDirection)
-            # print(displacement)
+            # if check == True:
+            #     print("king location:",kingLocation)
+            #     print("source piece location",sourcePiece.location)
+            #     print("displacement", displacement)
             # print(sourcePiece.location)
             # print("diagonal", diagonal)
 
             try:
                 for x, y in diagonal:
                     for step in (range(1, abs(int(displacement[0])))):
-                        # print("x: ", str(sourcePiece.location[0] - (x * int(step))))
-                        # print("y: ",str(sourcePiece.location[1] - (y * int(step))))
+                        #print("x: ", str(sourcePiece.location[0] - (x * int(step))))
+                        #print("y: ",str(sourcePiece.location[1] - (y * int(step))))
                         for piece in pieces:
-                            if (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step)) \
-                            and diagDirection == "northeast" and sourcePiece != piece and sourcePiece.side == piece.side):
-                                print(sourcePiece.location)
-                                print(piece.displayValue)
-                                print(piece.location)
-                                return True
+                            ########figure out why check isn't triggering
+                            if (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step))):
+                                # print("targetPiece: ", piece.displayValue)
+                                # print("targetPiece location: ", piece.location)
+                                if check == True:
+                                    return "check"
+                                elif sourcePiece != piece and sourcePiece.side == piece.side:
+                                    # print(sourcePiece.location)
+                                    # print(piece.displayValue)
+                                    # print(piece.location)
+                                    return True
             except:
                 return -1
         return False
@@ -426,27 +443,58 @@ class Chess_Board():
                     return piece
         return False
 
+    def check(self, pieces, player):
+        #choosing king which is same side as player as they will be the one to take action
+        for piece in pieces:
+            index = pieces.index(piece)
+            if player.side == piece.side and (piece.displayValue == "wk" or piece.displayValue == "bk"):
+                enemyKingLocation = pieces[index].location
+                enemyKing = piece
+                print("enemy king location: ", enemyKingLocation)
+                print(enemyKing.displayValue)
+                
+        for piece in pieces:
+            isCheck = createdBoard.collisionChecker(pieces, piece, enemyKingLocation, True, player)  
+            print(piece.displayValue)
+            print(isCheck)
+            if isCheck == "check":
+                # print("is check: ", isCheck)
+                # print("King location: ", enemyKingLocation)
+                # print("piece location",piece.location)
+                # print("piece displayvalue",piece.displayValue)
+                return "check", enemyKing.side
+        return False
+
 def clearScreen():
     os.system('clear')
 
-def parser(coordinates):
+def parser(coordinates, reverse):
     chessRank = {"a":"0", "b":"1", "c":"2", "d":"3", "e":"4", "f":"5", "g":"6", "h":"7"}
     chessFile = {"1":"7", "2":"6", "3":"5", "4":"4", "5":"3", "6":"2", "7":"1", "8":"0"}
-    string = re.sub('[\[!@#%$\s+\][i-z][A-Z],', '', coordinates)
+    reverseChessFile = {"7":"1", "6":"2", "5":"3", "4":"4", "3":"5", "2":"6", "1":"7", "0":"8"}
+    #string = re.sub('[\[!@#%$\s+\][i-z][A-Z],', '', coordinates)
+    noSpaceString = str(coordinates).replace(" ", "")
+    parsedString = str(noSpaceString).split(",")
     pattern = "[a-h]"
     parsedCoordinates = []
 
     try:
-        if int(coordinates[3]) > 8 or int(coordinates[3]) < 0:
+        if int(parsedString[1]) > 8 or int(parsedString[1]) < 0:
             return False
         else:
-            if re.match(pattern, coordinates[0]):
-                parsedCoordinates.append(chessRank[coordinates[0]])
-                parsedCoordinates.append(chessFile[coordinates[3]])
+            if re.match(pattern, parsedString[0]):
+                parsedCoordinates.append(chessRank[parsedString[0]])
+                if reverse == True:
+                    parsedCoordinates.append(reverseChessFile[parsedString[1]])
+                else:
+                    parsedCoordinates.append(chessFile[parsedString[1]])
                 return parsedCoordinates
             else:
-                parsedCoordinates.append(coordinates[0])
-                parsedCoordinates.append(chessFile[coordinates[3]])
+                parsedCoordinates.append(parsedString[0])
+                if reverse == True:
+                    parsedCoordinates.append(reverseChessFile[parsedString[1]])
+                else:
+                    parsedCoordinates.append(chessFile[parsedString[1]])
                 return parsedCoordinates
     except:
         return False
@@ -464,9 +512,9 @@ class Player2():
         self.side = side
 
 def Game(createdBoard, player1, player2):
-    chessFile = {"1":"7", "2":"6", "3":"5", "4":"4", "5":"3", "6":"2", "7":"1", "8":"0"}
     turn = 1
     winner = False
+    underCheck = None
     while winner != True:
         #clearScreen()
         
@@ -484,10 +532,11 @@ def Game(createdBoard, player1, player2):
         print("Turn " + str(turn))
         print(currentPlayer.name + '\'s Turn')
         print(createdBoard.displayBoard(createdBoard.board))
+
         while True:
             sourcePiece = None
             source = input("Please provide source coordinates of the piece you want to move[x, y]: ")
-            sanitizedSource = parser(source)
+            sanitizedSource = parser(source, False)
             #print("source" + str(sanitizedSource))
             if sanitizedSource == False:
                 print("Incorrect Source Coordinates, Please Try Again")
@@ -509,10 +558,8 @@ def Game(createdBoard, player1, player2):
 
         while True:
             dest = input("Please provide destination coordinates of the piece you want to move[x, y]: ")
-            sanitizedDestination = parser(dest)
+            sanitizedDestination = parser(dest, False)
             #print("destination" + str(sanitizedDestination))
-            #print("source piece location" + str(sourcePiece.location))
-
             if sanitizedDestination == False:
                 print("Incorrect Destination Coordinates, Please Try Again")
                 continue
@@ -529,7 +576,7 @@ def Game(createdBoard, player1, player2):
                     enemyPiece = False
                 
                 #check for collisions
-                collision = createdBoard.collisionChecker(createdBoard.pieces, sourcePiece, sanitizedDestination)   
+                collision = createdBoard.collisionChecker(createdBoard.pieces, sourcePiece, sanitizedDestination, False, currentPlayer)   
                 if collision == True:
                     print("Collision!")
                     continue
@@ -554,8 +601,31 @@ def Game(createdBoard, player1, player2):
                 else:
                     print("Not a valid location for piece!")
                     continue
-                break
-        turn += 1
+
+                #figure out check code. might need to integrate rollback if it doesn't break check, but should only run for the next player
+                while True:
+                    check = createdBoard.check(createdBoard.pieces, currentPlayer)
+                    print("check: ", check)
+                    #######HITTING THIS CHECK FOR SOME REASON. FIX IT
+                    if check[0] == "check" and underCheck == None:
+                        print("CHECK!")
+                        underCheck = currentPlayer
+                        break
+                    elif check == "check" and underCheck != None:
+                        if currentPlayer.side == underCheck.side and currentPlayer.side == check[1]:
+                            print("CHECK!")
+                        #rollback code
+                        reverseSanitizedSource = parser(source, True)
+                        sourcePiece.location = reverseSanitizedSource
+                        if enemyPiece != False:
+                            createdBoard.pieces.append(enemyPiece)
+                        createdBoard.updateBoard(createdBoard.pieces)
+                        break
+                    else:
+                        turn += 1
+                        underCheck == None
+                        break
+                
 
 #Create pieces
 #PAWNS
