@@ -21,6 +21,7 @@ from rook   import Rook
 
 class Chess_Board():
     def __init__(self, pieces):
+        global positions
         self.pieces = pieces
         board = []
         for row in range(8):
@@ -32,8 +33,14 @@ class Chess_Board():
         for piece in pieces:
             index = pieces.index(piece)
             pieceLocation = pieces[index].location
+            #print(pieceLocation)
+            #parsedLocation = self.parser(str(pieceLocation), False)
+            #print(parsedLocation)
+            position = {str(pieceLocation): pieces[index].displayValue} 
+            positions.update(position)
             board[pieceLocation[1]][pieceLocation[0]] = str(pieces[index].displayValue).format()
         self.board = board
+        #print(positions)
 
     def updateBoard(self, pieces):
         self.pieces = pieces
@@ -70,219 +77,9 @@ class Chess_Board():
         ### need to step flags where once check is achieved don't change. only exit once all pieces have been checked for check
         #calculate displacement
         displacement = []
-        isCheck = None
 
-        if check == True:
-            for piece in pieces:
-                index = pieces.index(piece)
-                if player.side != piece.side and (piece.displayValue == "wk" or piece.displayValue == "bk"):
-                    kingLocation = pieces[index].location
-                    king = piece
-                    displacement.append(int(kingLocation[0]) - int(sourcePiece.location[0]))
-                    displacement.append(int(kingLocation[1]) - int(sourcePiece.location[1]))
-        else:
-            displacement.append(int(destination[0]) - int(sourcePiece.location[0]))
-            displacement.append(int(destination[1]) - int(sourcePiece.location[1]))           
-
-        if sourcePiece.perpendicular == True and sourcePiece.diagonal == True:
-            #specifically for queen
-            #east
-            if displacement[0] > 0 and displacement[1] == 0:
-                orthogonal = [1,0]
-            #west
-            elif displacement[0] < 0 and displacement[1] == 0:
-                orthogonal = [-1,0]
-            #north
-            elif displacement[1] < 0 and displacement[0] == 0:
-                orthogonal = [0,-1]
-            #south
-            elif displacement[1] > 0 and displacement[0] == 0:
-                orthogonal = [0,1]
-            else:
-                orthogonal = ""
-
-            #northeast
-            if displacement[0] > 0 and displacement[1] < 0:
-                diagonal = [(1,-1)]
-            #northwest
-            elif displacement[0] < 0 and displacement[1] < 0:
-                diagonal = [(-1,-1)]
-            #southeast
-            elif displacement[0] > 0 and displacement[1] > 0:
-                diagonal = [(1,1)]
-            #southwest
-            elif displacement[0] < 0 and displacement[1] > 0:
-                diagonal = [(-1,1)]
-            else:
-                diagonal = ""
-
-            try:
-                if diagonal != "":
-                    for x, y in diagonal:
-                        for step in (range(1, abs(int(displacement[0] + 1)))):
-                            for piece in pieces:
-                                if (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step))):
-                                    if check == True and sourcePiece.side != piece.side: 
-                                        if piece.displayValue == "wk" or piece.displayValue == "bk":
-                                            return "check"
-                                        else:
-                                            return False
-                                    elif sourcePiece != piece and sourcePiece.side == piece.side:
-                                        return True
-                #x Axis
-                if displacement[0] != 0 and orthogonal != "":
-                    for step in (range(abs(int(displacement[0] + 1)))):
-                        print("x: ", str(sourcePiece.location[0] + (x * int(step))))
-                        print("y: ",str(sourcePiece.location[1] + (y * int(step))))
-                        for piece in pieces:
-                            if int(sourcePiece.location[1]) == int(piece.location[1]) and (int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) == int(piece.location[0]):
-                                if check == True and sourcePiece.side != piece.side: 
-                                    if piece.displayValue == "wk" or piece.displayValue == "bk":
-                                        return "check"
-                                    else:
-                                        return False
-                                elif sourcePiece != piece and sourcePiece.side == piece.side:
-                                    return True
-                            
-                #y Axis
-                elif displacement[1] != 0 and orthogonal != "":
-                    for step in (range(1, abs(int(displacement[1])))):
-                        print("x: ", str(sourcePiece.location[0] + (x * int(step))))
-                        print("y: ",str(sourcePiece.location[1] + (y * int(step))))
-                        for piece in pieces:
-                            if int(sourcePiece.location[0]) == int(piece.location[0]) and (int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) == int(piece.location[1]):
-                                if check == True and sourcePiece.side != piece.side: 
-                                    if piece.displayValue == "wk" or piece.displayValue == "bk":
-                                        return "check"
-                                    else:
-                                        return False
-                                elif sourcePiece != piece and sourcePiece.side == piece.side:
-                                    return True
-            except:
-                return -1
-
-        elif sourcePiece.perpendicular == True and sourcePiece.diagonal == False:       
-            #east
-            if displacement[0] > 0 and displacement[1] == 0:
-                orthogonal = [1,0]
-            #west
-            elif displacement[0] < 0 and displacement[1] == 0:
-                orthogonal = [-1,0]
-            #north
-            elif displacement[1] < 0 and displacement[0] == 0:
-                orthogonal = [0,-1]
-            #south
-            elif displacement[1] > 0 and displacement[0] == 0:
-                orthogonal = [0,1]
-            else:
-                orthogonal = ""
-
-            #print("displacement: ", displacement)
-            #need to change displacement as for check it will look at ALL pieces towards king, which will always hit when applying displacement
-            #pawns are hitting x-axis for some reason
-            #x Axis
-            if displacement[0] != 0 and orthogonal != "":
-                for step in (range(1, abs(int(displacement[0])))):
-                    print("x: ", str(int(sourcePiece.location[0] + (int(orthogonal[0]) * step))))
-                    #print("y: ", str(int(sourcePiece.location[1] + (int(orthogonal[1]) * step))))
-                    for piece in pieces:
-                        if int(sourcePiece.location[1]) == int(piece.location[1]) and (int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) == int(piece.location[0]) \
-                        and ((int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) <= piece.distance):
-                            if check == True and sourcePiece.side != piece.side: 
-                                print("checking check!")
-                                if piece.displayValue == "wk" or piece.displayValue == "bk":
-                                    return "check"
-                                else:
-                                    return False
-                            elif sourcePiece != piece and sourcePiece.side == piece.side:
-                                return True
-
-            ##################not calculating check for rooks. figure out why. might need to play around and see which conditions are getting hit
-            # not fully going through pieces array before returning        
-            # main things i should store are if i hit check or True. do not change flag once set until returned.
-            # why the hell is  <pawn.Pawn object at 0x7f8ad13cf130> being selected as source piece when it is actually rook? is it because of parser?
-            # only reporting sourcepiece incorrectly in here
-            # issue is that array is not updated immediately after taking a piece. after taking BP source piece is still c, 7
-            #y Axis
-            elif displacement[1] != 0 and orthogonal != "":
-                for step in (range(1, abs(int(displacement[1])))):
-                    # print("x: ", str(int(sourcePiece.location[0] + (int(orthogonal[0]) * step))))
-                    print("y: ", str(int(sourcePiece.location[1] + (int(orthogonal[1]) * step))))
-                    for piece in pieces:
-                        if int(sourcePiece.location[0]) == int(piece.location[0]) and (int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) == int(piece.location[1]) \
-                        and ((int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) <= piece.distance):
-                            print(sourcePiece)
-                            #just for getting rook output
-                            print("piece travel distance: ", piece.distance)
-                            print("king location:",kingLocation)
-                            print("source piece location",sourcePiece.location)
-                            print("source piece: ",sourcePiece.displayValue)
-                            print("displacement", displacement)
-                            print("orthogonal", orthogonal)
-                            if sourcePiece.displayValue == "wr" or sourcePiece.displayValue == "br": #delete this line when done testing
-                                if check == True:
-                                #     print("king location:",kingLocation)
-                                #     print("source piece location",sourcePiece.location)
-                                #     print("source piece: ",sourcePiece.displayValue)
-                                #     print("displacement", displacement)
-                                #     print("orthogonal", orthogonal)
-                                    print("shit this one")
-                                if check == True and sourcePiece.side != piece.side: 
-                                    if piece.displayValue == "wk" or piece.displayValue == "bk":
-                                        return "check"
-                                    else:
-                                        return False
-                                elif sourcePiece != piece and sourcePiece.side == piece.side:
-                                    return True
-
-        elif sourcePiece.diagonal == True and sourcePiece.perpendicular == False:
-            #northeast
-            if displacement[0] > 0 and displacement[1] < 0:
-                diagonal = [(1,-1)]
-            #northwest
-            elif displacement[0] < 0 and displacement[1] < 0:
-                diagonal = [(-1,-1)]
-            #southeast
-            elif displacement[0] > 0 and displacement[1] > 0:
-                diagonal = [(1,1)]
-            #southwest
-            elif displacement[0] < 0 and displacement[1] > 0:
-                diagonal = [(-1,1)]
-            else:
-                diagonal = ""
-            
-            # if check == True:
-            #     print("king location:",kingLocation)
-            #     print("source piece location",sourcePiece.location)
-            #     print("displacement", displacement)
-            try:
-                for x, y in diagonal:
-                    for step in (range(1, abs(int(displacement[0]) + 1))):
-                        # print("x: ", str(sourcePiece.location[0] + (x * int(step))))
-                        # print("y: ",str(sourcePiece.location[1] + (y * int(step))))
-                        for piece in pieces:
-                            if (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step))):
-                                # print("targetPiece: ", piece.displayValue)
-                                # print("targetPiece location: ", piece.location)
-                                if check == True and sourcePiece.side != piece.side: 
-                                    if piece.displayValue == "wk" or piece.displayValue == "bk":
-                                        return "check"
-                                    else:
-                                        return False
-                                elif sourcePiece != piece and sourcePiece.side == piece.side:
-                                    # print(sourcePiece.location)
-                                    # print(piece.displayValue)
-                                    # print(piece.location)
-                                    return True
-            except:
-                return -1
-        return False
-
-    def checkValidator(self, sourcePiece, king, player):
-        #calculate displacement
-        displacement = []
-        displacement.append(int(king.location[0]) - int(sourcePiece.location[0]))
-        displacement.append(int(king.location[1]) - int(sourcePiece.location[1]))       
+        displacement.append(int(destination[0]) - int(sourcePiece.location[0]))
+        displacement.append(int(destination[1]) - int(sourcePiece.location[1]))           
 
         if sourcePiece.perpendicular == True and sourcePiece.diagonal == True:
             #specifically for queen
@@ -321,35 +118,36 @@ class Chess_Board():
                 if diagonal != "":
                     for x, y in diagonal:
                         for step in (range(1, abs(int(displacement[0]) + 1))):
-                            if (int(king.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(king.location[1]) == int(sourcePiece.location[1] + (y * step))):
-                                if sourcePiece.side != king.side: 
-                                    return "check"
-                                else:
-                                    return False
+                            for piece in pieces:
+                                if (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step)) \
+                                and sourcePiece != piece and sourcePiece.side == piece.side):
+                                    return True
+
                 #x Axis
                 if displacement[0] != 0 and orthogonal != "":
                     for step in (range(1, abs(int(displacement[0])))):
-                        if int(sourcePiece.location[1]) == int(king.location[1]) and (int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) == int(king.location[0]) \
-                        and (int(sourcePiece.location[0] + (int(orthogonal[0]) * step)) <= sourcePiece.distance):
-                            if sourcePiece.side != king.side: 
-                                return "check"
-                            else:
-                                return False
+                        for piece in pieces:
+                            if int(sourcePiece.location[1]) == int(piece.location[1]) and (int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) == int(piece.location[0]) \
+                            and ((int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) <= piece.distance):
+                                if sourcePiece.side == piece.side:
+                                    return True
+                                elif sourcePiece.side != piece.side:
+                                    return True
 
                 #y Axis
                 elif displacement[1] != 0 and orthogonal != "":
                     for step in (range(1, abs(int(displacement[1])))):
-                        if int(sourcePiece.location[0]) == int(king.location[0]) and (int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) == int(king.location[1]) \
-                        and (int(sourcePiece.location[1] + (int(orthogonal[1]) * step)) <= sourcePiece.distance):
-                            if sourcePiece.side != king.side: 
-                                return "check"
-                            else:
-                                return False
+                        for piece in pieces:
+                            if int(sourcePiece.location[0]) == int(piece.location[0]) and (int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) == int(piece.location[1]) \
+                            and ((int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) <= piece.distance):
+                                if sourcePiece.side == piece.side:
+                                    return True
+                                elif sourcePiece.side != piece.side:
+                                    return True
             except:
                 return -1
 
         elif sourcePiece.perpendicular == True and sourcePiece.diagonal == False:       
-
             #east
             if displacement[0] > 0 and displacement[1] == 0:
                 orthogonal = [1,0]
@@ -368,19 +166,167 @@ class Chess_Board():
             #x Axis
             if displacement[0] != 0 and orthogonal != "":
                 for step in (range(1, abs(int(displacement[0])))):
-                    if int(sourcePiece.location[1]) == int(king.location[1]) and (int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) == int(king.location[0]) \
-                    and (int(sourcePiece.location[0] + (int(orthogonal[0]) * step)) <= sourcePiece.distance):
-                        if sourcePiece.side != king.side: 
+                    for piece in pieces:
+                        if int(sourcePiece.location[1]) == int(piece.location[1]) and (int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) == int(piece.location[0]) \
+                        and ((int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) <= piece.distance):
+                            if sourcePiece.side == piece.side:
+                                return True
+                            elif sourcePiece.side != piece.side:
+                                return True
+
+            #y Axis
+            elif displacement[1] != 0 and orthogonal != "":
+                for step in (range(1, abs(int(displacement[1])))):
+                    for piece in pieces:
+                        if int(sourcePiece.location[0]) == int(piece.location[0]) and (int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) == int(piece.location[1]) \
+                        and ((int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) <= piece.distance):
+                            if sourcePiece.side == piece.side:
+                                return True
+                            elif sourcePiece.side != piece.side:
+                                return True
+
+        elif sourcePiece.diagonal == True and sourcePiece.perpendicular == False:
+            #northeast
+            if displacement[0] > 0 and displacement[1] < 0:
+                diagonal = [(1,-1)]
+            #northwest
+            elif displacement[0] < 0 and displacement[1] < 0:
+                diagonal = [(-1,-1)]
+            #southeast
+            elif displacement[0] > 0 and displacement[1] > 0:
+                diagonal = [(1,1)]
+            #southwest
+            elif displacement[0] < 0 and displacement[1] > 0:
+                diagonal = [(-1,1)]
+            else:
+                diagonal = ""
+            
+            try:
+                for x, y in diagonal:
+                    for step in (range(1, abs(int(displacement[0]) + 1))):
+                        for piece in pieces:
+                            if (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step)) \
+                            and sourcePiece != piece and sourcePiece.side == piece.side):
+                                return True
+            except:
+                return -1
+        return False
+
+    def checkValidator(self, sourcePiece, king, player):
+        #i need to somehow check all pieces in this validator otherwise it will ignore pieces blocking attacking piece
+        #think about implementing a dictionary to avoid O(N) for searching for location 
+        global positions
+        #calculate displacement
+        displacement = []
+        displacement.append(int(king.location[0]) - int(sourcePiece.location[0]))
+        displacement.append(int(king.location[1]) - int(sourcePiece.location[1]))
+
+        if sourcePiece.perpendicular == True and sourcePiece.diagonal == True:
+            #specifically for queen
+            #east
+            if displacement[0] > 0 and displacement[1] == 0:
+                orthogonal = [1,0]
+            #west
+            elif displacement[0] < 0 and displacement[1] == 0:
+                orthogonal = [-1,0]
+            #north
+            elif displacement[1] < 0 and displacement[0] == 0:
+                orthogonal = [0,-1]
+            #south
+            elif displacement[1] > 0 and displacement[0] == 0:
+                orthogonal = [0,1]
+            else:
+                orthogonal = ""
+
+            #northeast
+            if displacement[0] > 0 and displacement[1] < 0:
+                diagonal = [(1,-1)]
+            #northwest
+            elif displacement[0] < 0 and displacement[1] < 0:
+                diagonal = [(-1,-1)]
+            #southeast
+            elif displacement[0] > 0 and displacement[1] > 0:
+                diagonal = [(1,1)]
+            #southwest
+            elif displacement[0] < 0 and displacement[1] > 0:
+                diagonal = [(-1,1)]
+            else:
+                diagonal = ""
+
+            try:
+                #diagonal
+                if sourcePiece.side != king.side and diagonal != "":
+                    for x, y in diagonal:
+                        for step in (range(1, abs(int(displacement[0]) + 1))):
+                            position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (x * step))), str((sourcePiece.location[1] + (y * step))))
+                            piece = positions.get(position)
+                            if piece != None and piece == king.displayValue:
+                                return "check"
+                            else:
+                                return False
+                #x Axis
+                if displacement[0] != 0 and orthogonal != "" and sourcePiece.side != king.side:
+                    for step in (range(1, abs(int(displacement[0])) + 1)):
+                        if step <= sourcePiece.distance:
+                            position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (int(orthogonal[0]) * step))), str(sourcePiece.location[1]))
+                            piece = positions.get(position)
+                            if piece != None and piece == king.displayValue:
+                                return "check"
+                            else:
+                                return False
+
+                #y Axis
+                elif displacement[1] != 0 and orthogonal != "" and sourcePiece.side != king.side:
+                    for step in (range(1, abs(int(displacement[1])) + 1)):
+                        if step <= sourcePiece.distance:
+                            position = '[{0}, {1}]'.format(str(sourcePiece.location[0]), str((sourcePiece.location[1] + (int(orthogonal[1]) * step))))
+                            piece = positions.get(position)
+                            if piece != None and piece == king.displayValue:
+                                return "check"
+                            else:
+                                return False
+            except:
+                return -1
+
+        elif sourcePiece.perpendicular == True and sourcePiece.diagonal == False:
+            #east
+            if displacement[0] > 0 and displacement[1] == 0:
+                orthogonal = [1,0]
+            #west
+            elif displacement[0] < 0 and displacement[1] == 0:
+                orthogonal = [-1,0]
+            #north
+            elif displacement[1] < 0 and displacement[0] == 0:
+                orthogonal = [0,-1]
+            #south
+            elif displacement[1] > 0 and displacement[0] == 0:
+                orthogonal = [0,1]
+            else:
+                orthogonal = ""
+
+            # print(sourcePiece.displayValue)
+            # print(sourcePiece.location)
+            # print("displacement: ",displacement)
+            # print("ortho: ",orthogonal)
+
+            #x Axis
+            if displacement[0] != 0 and orthogonal != "" and sourcePiece.side != king.side:
+                for step in (range(1, abs(int(displacement[0])) + 1)):
+                    if step <= sourcePiece.distance:
+                        position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (int(orthogonal[0]) * step))), str(sourcePiece.location[1]))
+                        piece = positions.get(position)
+                        if piece != None and piece == king.displayValue:
                             return "check"
                         else:
                             return False
 
             #y Axis
-            elif displacement[1] != 0 and orthogonal != "":
-                for step in (range(1, abs(int(displacement[1])))):
-                    if int(sourcePiece.location[0]) == int(king.location[0]) and (int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) == int(king.location[1]) \
-                    and (int(sourcePiece.location[1] + (int(orthogonal[1]) * step)) <= sourcePiece.distance):
-                        if sourcePiece.side != king.side: 
+            elif displacement[1] != 0 and orthogonal != "" and sourcePiece.side != king.side:
+                for step in (range(1, abs(int(displacement[1])) + 1)):
+                    if step <= sourcePiece.distance:
+                        position = '[{0}, {1}]'.format(str(sourcePiece.location[0]), str((sourcePiece.location[1] + (int(orthogonal[1]) * step))))
+                        piece = positions.get(position)
+                        if piece != None and piece == king.displayValue:
                             return "check"
                         else:
                             return False
@@ -402,10 +348,12 @@ class Chess_Board():
                 diagonal = ""
             
             try:
-                for x, y in diagonal:
-                    for step in (range(1, abs(int(displacement[0]) + 1))):
-                        if (int(king.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(king.location[1]) == int(sourcePiece.location[1] + (y * step))):
-                            if sourcePiece.side != king.side: 
+                if sourcePiece.side != king.side:
+                    for x, y in diagonal:
+                        for step in (range(1, abs(int(displacement[0]) + 1))):
+                            position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (x * step))), str((sourcePiece.location[1] + (y * step))))
+                            piece = positions.get(position)
+                            if piece != None and piece == king.displayValue:
                                 return "check"
                             else:
                                 return False
@@ -416,7 +364,6 @@ class Chess_Board():
     def allyChecker(self, pieces, currentPlayer, sanitizedDestination):
         for piece in pieces:
             location = piece.location
-
             if int(sanitizedDestination[0]) == int(location[0]) and int(sanitizedDestination[1]) == int(location[1]):
                 side = piece.side
                 if currentPlayer.side == side:
@@ -431,49 +378,48 @@ class Chess_Board():
             if player.side != piece.side and (piece.displayValue == "wk" or piece.displayValue == "bk"):
                 enemyKingLocation = pieces[index].location
                 enemyKing = piece
-                # print("enemy king location: ", enemyKingLocation)
-                # print(enemyKing.displayValue)
                 
-        #need to not stop once return value is provided. Need to check all pieces for existance of check
-        for piece in pieces:
-            #isCheck = createdBoard.collisionChecker(pieces, piece, enemyKingLocation, True, player)  
-            isCheck = createdBoard.checkValidator(piece, enemyKing, player)
+        #need to check all pieces for existance of check
+        for x in range(len(pieces)):
+            isCheck = createdBoard.checkValidator(pieces[x], enemyKing, player)
             if isCheck == "check":
                 return "check", enemyKing.side
         return False, enemyKing.side
 
+    def parser(self, coordinates, reverse):
+        chessRank = {"a":"0", "b":"1", "c":"2", "d":"3", "e":"4", "f":"5", "g":"6", "h":"7"}
+        chessFile = {"1":"7", "2":"6", "3":"5", "4":"4", "5":"3", "6":"2", "7":"1", "8":"0"}
+        reverseChessFile = {"7":"1", "6":"2", "5":"3", "4":"4", "3":"5", "2":"6", "1":"7", "0":"8"}
+        noBracketString1 = str(coordinates).replace("[", "")
+        noBracketString2 = str(noBracketString1).replace("]", "")
+        noSpaceString = str(noBracketString2).replace(" ", "")
+        parsedString = str(noSpaceString).split(",")
+        pattern = "[a-h]"
+        parsedCoordinates = []
+
+        try:
+            if int(parsedString[1]) > 8 or int(parsedString[1]) < 0:
+                return False
+            else:
+                if re.match(pattern, parsedString[0]):
+                    parsedCoordinates.append(int(chessRank[parsedString[0]]))
+                    if reverse == True:
+                        parsedCoordinates.append(int(reverseChessFile[parsedString[1]]))
+                    else:
+                        parsedCoordinates.append(int(chessFile[parsedString[1]]))
+                    return parsedCoordinates
+                else:
+                    parsedCoordinates.append(int(parsedString[0]))
+                    if reverse == True:
+                        parsedCoordinates.append(int(reverseChessFile[parsedString[1]]))
+                    else:
+                        parsedCoordinates.append(int(chessFile[parsedString[1]]))
+                    return parsedCoordinates
+        except:
+            return False
+
 def clearScreen():
     os.system('clear')
-
-def parser(coordinates, reverse):
-    chessRank = {"a":"0", "b":"1", "c":"2", "d":"3", "e":"4", "f":"5", "g":"6", "h":"7"}
-    chessFile = {"1":"7", "2":"6", "3":"5", "4":"4", "5":"3", "6":"2", "7":"1", "8":"0"}
-    reverseChessFile = {"7":"1", "6":"2", "5":"3", "4":"4", "3":"5", "2":"6", "1":"7", "0":"8"}
-    noSpaceString = str(coordinates).replace(" ", "")
-    parsedString = str(noSpaceString).split(",")
-    pattern = "[a-h]"
-    parsedCoordinates = []
-
-    try:
-        if int(parsedString[1]) > 8 or int(parsedString[1]) < 0:
-            return False
-        else:
-            if re.match(pattern, parsedString[0]):
-                parsedCoordinates.append(int(chessRank[parsedString[0]]))
-                if reverse == True:
-                    parsedCoordinates.append(int(reverseChessFile[parsedString[1]]))
-                else:
-                    parsedCoordinates.append(int(chessFile[parsedString[1]]))
-                return parsedCoordinates
-            else:
-                parsedCoordinates.append(parsedString[0])
-                if reverse == True:
-                    parsedCoordinates.append(int(reverseChessFile[parsedString[1]]))
-                else:
-                    parsedCoordinates.append(int(chessFile[parsedString[1]]))
-                return parsedCoordinates
-    except:
-        return False
 
 class Player1():
     def __init__(self, name, side, points):
@@ -488,6 +434,7 @@ class Player2():
         self.side = side
 
 def Game(createdBoard, player1, player2):
+    global positions
     turn = 1
     winner = False
     underCheck = None
@@ -516,7 +463,7 @@ def Game(createdBoard, player1, player2):
         while True:
             sourcePiece = None
             source = input("Please provide source coordinates of the piece you want to move[x, y]: ")
-            sanitizedSource = parser(source, False)
+            sanitizedSource = createdBoard.parser(source, False)
             #print("source" + str(sanitizedSource))
             if sanitizedSource == False:
                 print("Incorrect Source Coordinates, Please Try Again")
@@ -538,7 +485,7 @@ def Game(createdBoard, player1, player2):
 
         while True:
             dest = input("Please provide destination coordinates of the piece you want to move[x, y]: ")
-            sanitizedDestination = parser(dest, False)
+            sanitizedDestination = createdBoard.parser(dest, False)
             #print("destination" + str(sanitizedDestination))
             if sanitizedDestination == False:
                 print("Incorrect Destination Coordinates, Please Try Again")
@@ -574,14 +521,22 @@ def Game(createdBoard, player1, player2):
                     validMove = sourcePiece.move(sanitizedDestination)
                 
                 if validMove == True and enemyPiece != False and collision == False:
+                    del positions[str(enemyPiece.location)]
+                    del positions[str(sanitizedSource)]
+                    position = {str(sourcePiece.location): sourcePiece.displayValue}
+                    positions.update(position)
                     createdBoard.pieces.remove(enemyPiece)
                     createdBoard.updateBoard(createdBoard.pieces)
                 elif validMove == True and collision == False:
+                    del positions[str(sanitizedSource)]
+                    position = {str(sourcePiece.location): sourcePiece.displayValue}
+                    positions.update(position)
                     createdBoard.updateBoard(createdBoard.pieces)
                 else:
                     print("Not a valid location for piece!")
                     continue
 
+                #validate for presence of check
                 while True:
                     if underCheck == None:
                         check = createdBoard.check(createdBoard.pieces, currentPlayer)
@@ -600,6 +555,9 @@ def Game(createdBoard, player1, player2):
                                 sourcePiece.location = sanitizedSource
                                 if enemyPiece != False:
                                     createdBoard.pieces.append(enemyPiece)
+                                    del positions[str(sourcePiece.location)]
+                                    position = {str(sanitizedSource): sourcePiece.displayValue}
+                                    positions.update(position)
                                 createdBoard.updateBoard(createdBoard.pieces)
                             elif check[0] != "check":
                                 turn += 1
@@ -653,6 +611,8 @@ br2 = Rook("b", [7, 0], "br", 5, True, False, 7)
 
 player1 = Player1("player1111","w", 0)
 player2 = Player2("player2222","b", 0)
+global positions
+positions = {}
 createdBoard = Chess_Board([bp1, wp1, bp2, wp2, bp3, wp3, bp4, wp4, bp5, wp5, bp6, wp6, bp7, wp7, bp8, wp8, br, wr, bkn, wkn, bb, wb, bq, wq, bk, wk, bb2, wb2, bkn2, wkn2, br2, wr2])
 
 Game(createdBoard, player1, player2)
