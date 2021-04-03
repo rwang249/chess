@@ -213,9 +213,12 @@ class Chess_Board():
         return False
 
     def checkValidator(self, sourcePiece, king, player):
-        #i need to somehow check all pieces in this validator otherwise it will ignore pieces blocking attacking piece
         #think about implementing a dictionary to avoid O(N) for searching for location 
         global positions
+        kingFound = False
+        pieceFound = False
+        unprotected = False
+
         #calculate displacement
         displacement = []
         displacement.append(int(king.location[0]) - int(sourcePiece.location[0]))
@@ -223,143 +226,253 @@ class Chess_Board():
 
         if sourcePiece.perpendicular == True and sourcePiece.diagonal == True:
             #specifically for queen
-            #east
-            if displacement[0] > 0 and displacement[1] == 0:
-                orthogonal = [1,0]
-            #west
-            elif displacement[0] < 0 and displacement[1] == 0:
-                orthogonal = [-1,0]
-            #north
-            elif displacement[1] < 0 and displacement[0] == 0:
-                orthogonal = [0,-1]
-            #south
-            elif displacement[1] > 0 and displacement[0] == 0:
-                orthogonal = [0,1]
-            else:
-                orthogonal = ""
+            #currently because it looks at all situations even if a king is right in front will not mark it as check because other pieces besides it were found
+            #how to set it to only look at pieces blocking direct access to king?
+            #checks for diagonal before perpendicular, which isn't good when queen is on e, 7
+            eastOrthogonal = [1,0]
+            westOrthogonal = [-1,0]
+            northOrthogonal = [0,-1]
+            southOrthogonal = [0,1]
 
-            #northeast
-            if displacement[0] > 0 and displacement[1] < 0:
-                diagonal = [(1,-1)]
-            #northwest
-            elif displacement[0] < 0 and displacement[1] < 0:
-                diagonal = [(-1,-1)]
-            #southeast
-            elif displacement[0] > 0 and displacement[1] > 0:
-                diagonal = [(1,1)]
-            #southwest
-            elif displacement[0] < 0 and displacement[1] > 0:
-                diagonal = [(-1,1)]
-            else:
-                diagonal = ""
+            northeastDiagonal = [(1,-1)]
+            northwestDiagonal = [(-1,-1)]
+            southeastDiagonal = [(1,1)]
+            southwestDiagonal = [(-1,1)]
 
             try:
-                #diagonal
-                if sourcePiece.side != king.side and diagonal != "":
-                    for x, y in diagonal:
-                        for step in (range(1, abs(int(displacement[0]) + 1))):
-                            position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (x * step))), str((sourcePiece.location[1] + (y * step))))
-                            piece = positions.get(position)
-                            if piece != None and piece == king.displayValue:
-                                return "check"
-                            else:
-                                return False
-                #x Axis
-                if displacement[0] != 0 and orthogonal != "" and sourcePiece.side != king.side:
-                    for step in (range(1, abs(int(displacement[0])) + 1)):
-                        if step <= sourcePiece.distance:
-                            position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (int(orthogonal[0]) * step))), str(sourcePiece.location[1]))
-                            piece = positions.get(position)
-                            if piece != None and piece == king.displayValue:
-                                return "check"
-                            else:
-                                return False
+                if sourcePiece.side != king.side:     
+                    for step in (range(1, int(sourcePiece.distance) + 1)):
+                        if kingFound == True:
+                            break
+                        #diagonal
+                        #northeast
+                        for x, y in northeastDiagonal:
+                            if kingFound != True:
+                                position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (x * step))), str((sourcePiece.location[1] + (y * step))))
+                                piece = positions.get(position)
+                                if piece != None and piece == king.displayValue:
+                                    kingFound = True
+                                    break
+                                elif piece != None:
+                                    pieceFound = True
+                    
+                        pieceFound = False
 
-                #y Axis
-                elif displacement[1] != 0 and orthogonal != "" and sourcePiece.side != king.side:
-                    for step in (range(1, abs(int(displacement[1])) + 1)):
-                        if step <= sourcePiece.distance:
-                            position = '[{0}, {1}]'.format(str(sourcePiece.location[0]), str((sourcePiece.location[1] + (int(orthogonal[1]) * step))))
-                            piece = positions.get(position)
-                            if piece != None and piece == king.displayValue:
-                                return "check"
-                            else:
-                                return False
+                        #northwest
+                        for x, y in northwestDiagonal:
+                            if kingFound != True:
+                                position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (x * step))), str((sourcePiece.location[1] + (y * step))))
+                                piece = positions.get(position)
+                                if piece != None and piece == king.displayValue:
+                                    kingFound = True
+                                    break
+                                elif piece != None:
+                                    pieceFound = True
+
+                        pieceFound = False
+
+                        #southeast
+                        for x, y in southeastDiagonal:
+                            if kingFound != True:
+                                position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (x * step))), str((sourcePiece.location[1] + (y * step))))
+                                piece = positions.get(position)
+                                if piece != None and piece == king.displayValue:
+                                    kingFound = True
+                                    break
+                                elif piece != None:
+                                    pieceFound = True
+
+                        pieceFound = False
+
+                        #southwest
+                        for x, y in southwestDiagonal:
+                            if kingFound != True:
+                                position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (x * step))), str((sourcePiece.location[1] + (y * step))))
+                                piece = positions.get(position)
+                                if piece != None and piece == king.displayValue:
+                                    kingFound = True
+                                    break
+                                elif piece != None:
+                                    pieceFound = True
+
+                        pieceFound = False
+
+                        #x Axis
+                        #east
+                        position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (int(eastOrthogonal[0]) * step))), str(sourcePiece.location[1]))
+                        piece = positions.get(position)
+                        if piece != None and piece == king.displayValue:
+                            kingFound = True
+                            break
+                        elif piece != None:
+                            pieceFound = True
+                        #west
+                        position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (int(westOrthogonal[0]) * step))), str(sourcePiece.location[1]))
+                        piece = positions.get(position)
+                        if piece != None and piece == king.displayValue:
+                            kingFound = True
+                            break
+                        elif piece != None:
+                            pieceFound = True
+
+                        #y Axis
+                        #north
+                        position = '[{0}, {1}]'.format(str(sourcePiece.location[0]), str((sourcePiece.location[1] + (int(northOrthogonal[1]) * step))))
+                        piece = positions.get(position)
+                        print("position: ",position)
+                        print("piece: ",piece)
+                        if piece != None and piece == king.displayValue:
+                            print("king was found")
+                            kingFound = True
+                            print("king found? ",kingFound)
+                            #break not working as intended?
+                            break                            
+                        elif piece != None:
+                            pieceFound = True
+                        #south
+                        position = '[{0}, {1}]'.format(str(sourcePiece.location[0]), str((sourcePiece.location[1] + (int(southOrthogonal[1]) * step))))
+                        piece = positions.get(position)
+                        if piece != None and piece == king.displayValue:
+                            kingFound = True
+                            break                       
+                        elif piece != None:
+                            pieceFound = True
+
+
+                    if pieceFound == True and kingFound == True:
+                        print("hit this unprotected")
+                        unprotected = False
+                    elif pieceFound == False and kingfound == True:
+                        unprotected = True
+                    
+                    if sourcePiece.displayValue == "wq" or sourcePiece.displayValue == "bq":
+                        print("sourcepiece: ",sourcePiece.displayValue)
+                        print("target: ",king.displayValue)
+                        print("piece found: ", pieceFound)
+                        print("king found: ", kingFound)
+                        print("unprotected: ", unprotected)        
             except:
                 return -1
 
         elif sourcePiece.perpendicular == True and sourcePiece.diagonal == False:
-            #east
-            if displacement[0] > 0 and displacement[1] == 0:
-                orthogonal = [1,0]
-            #west
-            elif displacement[0] < 0 and displacement[1] == 0:
-                orthogonal = [-1,0]
-            #north
-            elif displacement[1] < 0 and displacement[0] == 0:
-                orthogonal = [0,-1]
-            #south
-            elif displacement[1] > 0 and displacement[0] == 0:
-                orthogonal = [0,1]
-            else:
-                orthogonal = ""
-
+            eastOrthogonal = [1,0]
+            westOrthogonal = [-1,0]
+            northOrthogonal = [0,-1]
+            southOrthogonal = [0,1]
             # print(sourcePiece.displayValue)
             # print(sourcePiece.location)
             # print("displacement: ",displacement)
             # print("ortho: ",orthogonal)
-
-            #x Axis
-            if displacement[0] != 0 and orthogonal != "" and sourcePiece.side != king.side:
+            ######################do i need to search in a cross pattern rather than a straight line?
+            # with this implementation pieces will only look in the direction that it is moving in, when some pieces can attack in a cross like a rook
+            # should somehow look to combine x-axis and y-axis and check all orthogonal directions. should be 2 for x-axis and 2 for y-axis
+            
+            if sourcePiece.side != king.side and (sourcePiece.displayValue != "bp" or sourcePiece.displayValue != "wp"):
+                #x Axis
                 for step in (range(1, abs(int(displacement[0])) + 1)):
                     if step <= sourcePiece.distance:
-                        position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (int(orthogonal[0]) * step))), str(sourcePiece.location[1]))
+                        #east
+                        position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (int(eastOrthogonal[0]) * step))), str(sourcePiece.location[1]))
                         piece = positions.get(position)
                         if piece != None and piece == king.displayValue:
-                            return "check"
-                        else:
-                            return False
+                            kingFound = True
+                        elif piece != None:
+                            pieceFound = True
+                        #west
+                        position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (int(westOrthogonal[0]) * step))), str(sourcePiece.location[1]))
+                        piece = positions.get(position)
+                        if piece != None and piece == king.displayValue:
+                            kingFound = True
+                        elif piece != None:
+                            pieceFound = True
 
-            #y Axis
-            elif displacement[1] != 0 and orthogonal != "" and sourcePiece.side != king.side:
+                #y Axis
                 for step in (range(1, abs(int(displacement[1])) + 1)):
                     if step <= sourcePiece.distance:
-                        position = '[{0}, {1}]'.format(str(sourcePiece.location[0]), str((sourcePiece.location[1] + (int(orthogonal[1]) * step))))
+                        #north
+                        position = '[{0}, {1}]'.format(str(sourcePiece.location[0]), str((sourcePiece.location[1] + (int(northOrthogonal[1]) * step))))
                         piece = positions.get(position)
                         if piece != None and piece == king.displayValue:
-                            return "check"
-                        else:
-                            return False
+                            kingFound = True
+                        elif piece != None:
+                            pieceFound = True
+                        #south
+                        position = '[{0}, {1}]'.format(str(sourcePiece.location[0]), str((sourcePiece.location[1] + (int(southOrthogonal[1]) * step))))
+                        piece = positions.get(position)
+                        if piece != None and piece == king.displayValue:
+                            kingFound = True
+                        elif piece != None:
+                            pieceFound = True
+            
+            #for pawns only
+            # elif displacement[1] != 0 and orthogonal != "" and sourcePiece.side != king.side:
+            #     for step in (range(1, abs(int(displacement[1])) + 1)):
+            #         if step <= sourcePiece.distance:
+            #             position = '[{0}, {1}]'.format(str(sourcePiece.location[0]), str((sourcePiece.location[1] + (int(orthogonal[1]) * step))))
+            #             piece = positions.get(position)
+            #             if piece != None and piece == king.displayValue:
+            #                 return "check"
+            #             else:
+            #                 return False
 
         elif sourcePiece.diagonal == True and sourcePiece.perpendicular == False:
-            #northeast
-            if displacement[0] > 0 and displacement[1] < 0:
-                diagonal = [(1,-1)]
-            #northwest
-            elif displacement[0] < 0 and displacement[1] < 0:
-                diagonal = [(-1,-1)]
-            #southeast
-            elif displacement[0] > 0 and displacement[1] > 0:
-                diagonal = [(1,1)]
-            #southwest
-            elif displacement[0] < 0 and displacement[1] > 0:
-                diagonal = [(-1,1)]
-            else:
-                diagonal = ""
-            
+
+            northeastDiagonal = [(1,-1)]
+            northwestDiagonal = [(-1,-1)]
+            southeastDiagonal = [(1,1)]
+            southwestDiagonal = [(-1,1)]
+
             try:
                 if sourcePiece.side != king.side:
-                    for x, y in diagonal:
-                        for step in (range(1, abs(int(displacement[0]) + 1))):
+                    for step in (range(1, abs(int(displacement[0]) + 1))):
+                        #northeast
+                        for x, y in northeastDiagonal:
                             position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (x * step))), str((sourcePiece.location[1] + (y * step))))
                             piece = positions.get(position)
                             if piece != None and piece == king.displayValue:
-                                return "check"
-                            else:
-                                return False
+                                kingFound = True
+                            elif piece != None:
+                                pieceFound = True
+                        #northwest
+                        for x, y in northwestDiagonal:
+                            position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (x * step))), str((sourcePiece.location[1] + (y * step))))
+                            piece = positions.get(position)
+                            if piece != None and piece == king.displayValue:
+                                kingFound = True
+                            elif piece != None:
+                                pieceFound = True
+                        #southeast
+                        for x, y in southeastDiagonal:
+                            position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (x * step))), str((sourcePiece.location[1] + (y * step))))
+                            piece = positions.get(position)
+                            if piece != None and piece == king.displayValue:
+                                kingFound = True
+                            elif piece != None:
+                                pieceFound = True
+                        #southwest
+                        for x, y in southwestDiagonal:
+                            position = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (x * step))), str((sourcePiece.location[1] + (y * step))))
+                            piece = positions.get(position)
+                            if piece != None and piece == king.displayValue:
+                                kingFound = True
+                            elif piece != None:
+                                pieceFound = True
             except:
                 return -1
-        return False
+
+
+        # if pieceFound == True and kingFound == True:
+        #     unprotected = False
+        # elif pieceFound == False and kingfound == True:
+        #     unprotected = True
+
+        print("piece found: ", pieceFound)
+        print("king found: ", kingFound)
+        print("unprotected: ", unprotected)
+        if kingFound == True and unprotected == True:
+            return "check"
+        else:
+            return False
 
     def allyChecker(self, pieces, currentPlayer, sanitizedDestination):
         for piece in pieces:
@@ -567,6 +680,7 @@ def Game(createdBoard, player1, player2):
                         turn += 1
                         underCheck = None
                         break
+                #print(positions)
                 break
                 
 
@@ -595,7 +709,7 @@ wr = Rook("w", [0, 7], "wr", 5, True, False, 7)
 wkn = Knight("w", [1, 7], "wn", 3, False, False, 0)
 wb = Bishop("w", [2, 7], "wb", 3, False, True, 7)
 wq = Queen("w", [3, 7], "wq", 9, True, True, 7)
-wk = King("w", [4, 7], "wk", 99999, True, True, 1)
+wk = King("w", [4, 7], "wk", 99999, False, True, 1)
 wb2 = Bishop("w", [5, 7], "wb", 3, False, True, 7)
 wkn2 = Knight("w", [6, 7], "wn", 3, False, False, 0)
 wr2 = Rook("w", [7, 7], "wr", 5, True, False, 7)
@@ -604,7 +718,7 @@ br = Rook("b", [0, 0], "br", 5, True, False, 7)
 bkn = Knight("b", [1, 0], "bn", 3, False, False, 0)
 bb = Bishop("b", [2, 0], "bb", 3, False, True, 7)
 bq = Queen("b", [3, 0], "bq", 9, True, True, 7)
-bk = King("b", [4, 0], "bk", 99999, True, True, 1)
+bk = King("b", [4, 0], "bk", 99999, False, True, 1)
 bb2 = Bishop("b", [5, 0], "bb", 3, False, True, 7)
 bkn2 = Knight("b", [6, 0], "bn", 3, False, False, 0)
 br2 = Rook("b", [7, 0], "br", 5, True, False, 7)
