@@ -14,11 +14,11 @@ class King(Piece):
     def move(self, targetLocation):
         diagonal = [(1,1),(-1,1),(1,-1),(-1,-1)]
         #perpendicular
-        if int(targetLocation[0]) = 1 and int(targetLocation[1]) == self.location[1]:
+        if int(targetLocation[0]) == 1 and int(targetLocation[1]) == self.location[1]:
             self.location[0] = int(targetLocation[0])
             self.location[1] = int(targetLocation[1])
             return True
-        elif int(targetLocation[1]) = 1 and int(targetLocation[0]) == self.location[0]: 
+        elif int(targetLocation[1]) == 1 and int(targetLocation[0]) == self.location[0]: 
             self.location[0] = int(targetLocation[0])
             self.location[1] = int(targetLocation[1])
             return True
