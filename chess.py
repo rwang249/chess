@@ -74,7 +74,6 @@ class Chess_Board():
         print("\n")
 
     def collisionChecker(self, pieces, sourcePiece, destination, check, player):
-        ### need to step flags where once check is achieved don't change. only exit once all pieces have been checked for check
         #calculate displacement
         displacement = []
 
@@ -213,7 +212,6 @@ class Chess_Board():
         return False
 
     def checkValidator(self, sourcePiece, king, player):
-        #think about implementing a dictionary to avoid O(N) for searching for location 
         global positions
         kingFound = False
         pieceFound = False
@@ -770,7 +768,7 @@ def Game(createdBoard, player1, player2):
     underCheck = None
     checkingPlayer = None
     while winner != True:
-        #clearScreen()
+        clearScreen()
         
         #Iterate Players
         if (turn % 2) == 1:
@@ -788,7 +786,8 @@ def Game(createdBoard, player1, player2):
         print("Turn " + str(turn))
         print(currentPlayer.name + '\'s Turn')
         print(createdBoard.displayBoard(createdBoard.board))
-
+        
+        #get source piece
         while True:
             sourcePiece = None
             source = input("Please provide source coordinates of the piece you want to move[x, y]: ")
@@ -810,7 +809,8 @@ def Game(createdBoard, player1, player2):
                         print("Player does not own the piece " + str(sourcePiece.displayValue) + "!")
                         continue
                 break
-
+ 
+        #get destination
         while True:
             dest = input("Please provide destination coordinates of the piece you want to move[x, y]: ")
             sanitizedDestination = createdBoard.parser(dest, False)
@@ -837,6 +837,7 @@ def Game(createdBoard, player1, player2):
                     print("Not a valid location!")
                     continue
 
+                #call move function for piece
                 if enemyPiece == False and sourcePiece.displayValue != "bp" or sourcePiece.displayValue != "wp" and collision == False:
                     validMove = sourcePiece.move(sanitizedDestination)
                 elif enemyPiece != False and sourcePiece.displayValue == "bp" or sourcePiece.displayValue == "wp" and collision == False:
@@ -844,6 +845,7 @@ def Game(createdBoard, player1, player2):
                 elif enemyPiece == False and collision == False:
                     validMove = sourcePiece.move(sanitizedDestination)
                 
+                #update board and also positions dictionary
                 if validMove == True and enemyPiece != False and collision == False:
                     del positions[str(enemyPiece.location)]
                     del positions[str(sanitizedSource)]
@@ -862,7 +864,7 @@ def Game(createdBoard, player1, player2):
 
                 #validate for presence of check
                 while True:
-                    #special run only for king to avoid running into an enemy
+                    #special section only for king to avoid running into an enemy
                     if sourcePiece.displayValue == "wk" or sourcePiece.displayValue == "bk":
                         if currentPlayer == player1:
                             enemyPlayer = player2
@@ -884,12 +886,13 @@ def Game(createdBoard, player1, player2):
                             turn += 1
                             break
 
+                    #section for pieces that are not king
+                    #will scan pieces for check. once check is applied only performing an action that breaks check is allowed
                     if underCheck == None:
                         check = createdBoard.check(createdBoard.pieces, currentPlayer)
 
                     if check[0] == "check" and underCheck == None:
                         underCheck = check[1]
-                        #if currentPlayer.side != underCheck:
                         checkingPlayer = currentPlayer
                         turn += 1
                         break
