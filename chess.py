@@ -231,10 +231,10 @@ class Chess_Board():
                 position2 = '[{0}, {1}]'.format(str(sourcePiece.location[0] - 1), str(sourcePiece.location[1] - 1))
                 position1Piece = positions.get(position1)
                 position2Piece = positions.get(position2)
-                if position1Piece == king.displayValue:
+                if position1Piece == king.displayValue and sourcePiece.side != king.side:
                     kingFound = True
                     unprotected = True
-                elif position2Piece == king.displayValue:
+                elif position2Piece == king.displayValue and sourcePiece.side != king.side:
                     kingFound = True
                     unprotected = True
             elif sourcePiece.displayValue == "bp":
@@ -242,10 +242,10 @@ class Chess_Board():
                 position2 = '[{0}, {1}]'.format(str(sourcePiece.location[0] - 1), str(sourcePiece.location[1] + 1))
                 position1Piece = positions.get(position1)
                 position2Piece = positions.get(position2)
-                if position1Piece == king.displayValue:
+                if position1Piece == king.displayValue and sourcePiece.side != king.side:
                     kingFound = True
                     unprotected = True
-                elif position2Piece == king.displayValue:
+                elif position2Piece == king.displayValue and sourcePiece.side != king.side:
                     kingFound = True
                     unprotected = True
 
@@ -255,7 +255,7 @@ class Chess_Board():
             for movement in movements:
                 position = '[{0}, {1}]'.format(str(sourcePiece.location[0] + movement[0]), str(sourcePiece.location[1] + movement[1]))
                 piece = positions.get(position)
-                if piece == king.displayValue:
+                if piece == king.displayValue and sourcePiece.side != king.side:
                     kingFound = True
                     unprotected = True
 
@@ -282,14 +282,14 @@ class Chess_Board():
                                 piece = positions.get(position)
                                 if piece != None and piece != king.displayValue:
                                     pieceFound = True
-                                elif piece == king.displayValue:
+                                elif piece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
 
                                 #check ahead just in case king is right behind piece
                                 kingPosition = '[{0}, {1}]'.format(str((sourcePiece.location[0] + ((x * step) + 1))), str((sourcePiece.location[1] + ((y * step) - 1))))
                                 kingPiece = positions.get(kingPosition)
-                                if kingPiece != None and kingPiece == king.displayValue:
+                                if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
                     if kingFound != True:
@@ -306,14 +306,14 @@ class Chess_Board():
                                 piece = positions.get(position)
                                 if piece != None and piece != king.displayValue:
                                     pieceFound = True
-                                elif piece == king.displayValue:
+                                elif piece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
 
                                 #check ahead just in case king is right behind piece
                                 kingPosition = '[{0}, {1}]'.format(str((sourcePiece.location[0] + ((x * step) - 1))), str((sourcePiece.location[1] + ((y * step) - 1))))
                                 kingPiece = positions.get(kingPosition)
-                                if kingPiece != None and kingPiece == king.displayValue:
+                                if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
                     if kingFound != True:
@@ -330,14 +330,14 @@ class Chess_Board():
                                 piece = positions.get(position)
                                 if piece != None and piece != king.displayValue:
                                     pieceFound = True
-                                elif piece == king.displayValue:
+                                elif piece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
 
                                 #check ahead just in case king is right behind piece
                                 kingPosition = '[{0}, {1}]'.format(str((sourcePiece.location[0] + ((x * step) + 1))), str((sourcePiece.location[1] + ((y * step) + 1))))
                                 kingPiece = positions.get(kingPosition)
-                                if kingPiece != None and kingPiece == king.displayValue:
+                                if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
                     if kingFound != True:
@@ -354,14 +354,14 @@ class Chess_Board():
                                 piece = positions.get(position)
                                 if piece != None and piece != king.displayValue:
                                     pieceFound = True
-                                elif piece == king.displayValue:
+                                elif piece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
 
                                 #check ahead just in case king is right behind piece
                                 kingPosition = '[{0}, {1}]'.format(str((sourcePiece.location[0] + ((x * step) - 1))), str((sourcePiece.location[1] + ((y * step) + 1))))
                                 kingPiece = positions.get(kingPosition)
-                                if kingPiece != None and kingPiece == king.displayValue:
+                                if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
                     if kingFound != True:
@@ -377,14 +377,14 @@ class Chess_Board():
                         piece = positions.get(position)
                         if piece != None and piece != king.displayValue:
                             pieceFound = True
-                        elif piece == king.displayValue:
+                        elif piece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
 
                         #check ahead just in case king is right behind piece
                         kingPosition = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (int(eastOrthogonal[0]) * (step - 1)))), str(sourcePiece.location[1]))
                         kingPiece = positions.get(kingPosition)
-                        if kingPiece != None and kingPiece == king.displayValue:
+                        if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
 
@@ -400,14 +400,14 @@ class Chess_Board():
                         piece = positions.get(position)
                         if piece != None and piece != king.displayValue:
                             pieceFound = True
-                        elif piece == king.displayValue:
+                        elif piece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
 
                         #check ahead just in case king is right behind piece
                         kingPosition = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (int(westOrthogonal[0]) * (step + 1)))), str(sourcePiece.location[1]))
                         kingPiece = positions.get(kingPosition)
-                        if kingPiece != None and kingPiece == king.displayValue:
+                        if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
          
@@ -423,14 +423,14 @@ class Chess_Board():
                         piece = positions.get(position)                   
                         if piece != None and piece != king.displayValue:
                             pieceFound = True
-                        elif piece == king.displayValue:
+                        elif piece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
 
                         #check ahead just in case king is right behind piece
                         kingPosition = '[{0}, {1}]'.format(str(sourcePiece.location[0]), str((sourcePiece.location[1] + (int(northOrthogonal[1]) * (step - 1)))))
                         kingPiece = positions.get(kingPosition)
-                        if kingPiece != None and kingPiece == king.displayValue:
+                        if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
 
@@ -445,14 +445,14 @@ class Chess_Board():
                         piece = positions.get(position)
                         if piece != None and piece != king.displayValue:
                             pieceFound = True
-                        elif piece == king.displayValue:
+                        elif piece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
 
                         #check ahead just in case king is right behind piece
                         kingPosition = '[{0}, {1}]'.format(str(sourcePiece.location[0]), str((sourcePiece.location[1] + (int(southOrthogonal[1]) * (step + 1)))))
                         kingPiece = positions.get(kingPosition)
-                        if kingPiece != None and kingPiece == king.displayValue:
+                        if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
          
@@ -485,14 +485,14 @@ class Chess_Board():
                         piece = positions.get(position)
                         if piece != None and piece != king.displayValue:
                             pieceFound = True
-                        elif piece == king.displayValue:
+                        elif piece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
 
                         #check ahead just in case king is right behind piece
                         kingPosition = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (int(eastOrthogonal[0]) * (step - 1)))), str(sourcePiece.location[1]))
                         kingPiece = positions.get(kingPosition)
-                        if kingPiece != None and kingPiece == king.displayValue:
+                        if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
 
@@ -508,14 +508,14 @@ class Chess_Board():
                         piece = positions.get(position)
                         if piece != None and piece != king.displayValue:
                             pieceFound = True
-                        elif piece == king.displayValue:
+                        elif piece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
 
                         #check ahead just in case king is right behind piece
                         kingPosition = '[{0}, {1}]'.format(str((sourcePiece.location[0] + (int(westOrthogonal[0]) * (step + 1)))), str(sourcePiece.location[1]))
                         kingPiece = positions.get(kingPosition)
-                        if kingPiece != None and kingPiece == king.displayValue:
+                        if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
          
@@ -531,14 +531,14 @@ class Chess_Board():
                         piece = positions.get(position)                 
                         if piece != None and piece != king.displayValue:
                             pieceFound = True
-                        elif piece == king.displayValue:
+                        elif piece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
 
                         #check ahead just in case king is right behind piece
                         kingPosition = '[{0}, {1}]'.format(str(sourcePiece.location[0]), str((sourcePiece.location[1] + (int(northOrthogonal[1]) * (step - 1)))))
                         kingPiece = positions.get(kingPosition)
-                        if kingPiece != None and kingPiece == king.displayValue:
+                        if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
 
@@ -553,14 +553,14 @@ class Chess_Board():
                         piece = positions.get(position)
                         if piece != None and piece != king.displayValue:
                             pieceFound = True
-                        elif piece == king.displayValue:
+                        elif piece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
 
                         #check ahead just in case king is right behind piece
                         kingPosition = '[{0}, {1}]'.format(str(sourcePiece.location[0]), str((sourcePiece.location[1] + (int(southOrthogonal[1]) * (step + 1)))))
                         kingPiece = positions.get(kingPosition)
-                        if kingPiece != None and kingPiece == king.displayValue:
+                        if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                             kingFound = True
                             break
          
@@ -593,14 +593,14 @@ class Chess_Board():
                                 piece = positions.get(position)
                                 if piece != None and piece != king.displayValue:
                                     pieceFound = True
-                                elif piece == king.displayValue:
+                                elif piece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
 
                                 #check ahead just in case king is right behind piece
                                 kingPosition = '[{0}, {1}]'.format(str((sourcePiece.location[0] + ((x * step) + 1))), str((sourcePiece.location[1] + ((y * step) - 1))))
                                 kingPiece = positions.get(kingPosition)
-                                if kingPiece != None and kingPiece == king.displayValue:
+                                if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
                     if kingFound != True:
@@ -617,14 +617,14 @@ class Chess_Board():
                                 piece = positions.get(position)
                                 if piece != None and piece != king.displayValue:
                                     pieceFound = True
-                                elif piece == king.displayValue:
+                                elif piece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
 
                                 #check ahead just in case king is right behind piece
                                 kingPosition = '[{0}, {1}]'.format(str((sourcePiece.location[0] + ((x * step) - 1))), str((sourcePiece.location[1] + ((y * step) - 1))))
                                 kingPiece = positions.get(kingPosition)
-                                if kingPiece != None and kingPiece == king.displayValue:
+                                if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
                     if kingFound != True:
@@ -641,14 +641,14 @@ class Chess_Board():
                                 piece = positions.get(position)
                                 if piece != None and piece != king.displayValue:
                                     pieceFound = True
-                                elif piece == king.displayValue:
+                                elif piece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
 
                                 #check ahead just in case king is right behind piece
                                 kingPosition = '[{0}, {1}]'.format(str((sourcePiece.location[0] + ((x * step) + 1))), str((sourcePiece.location[1] + ((y * step) + 1))))
                                 kingPiece = positions.get(kingPosition)
-                                if kingPiece != None and kingPiece == king.displayValue:
+                                if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
                     if kingFound != True:
@@ -665,14 +665,14 @@ class Chess_Board():
                                 piece = positions.get(position)
                                 if piece != None and piece != king.displayValue:
                                     pieceFound = True
-                                elif piece == king.displayValue:
+                                elif piece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
 
                                 #check ahead just in case king is right behind piece
                                 kingPosition = '[{0}, {1}]'.format(str((sourcePiece.location[0] + ((x * step) - 1))), str((sourcePiece.location[1] + ((y * step) + 1))))
                                 kingPiece = positions.get(kingPosition)
-                                if kingPiece != None and kingPiece == king.displayValue:
+                                if kingPiece != None and kingPiece == king.displayValue and sourcePiece.side != king.side:
                                     kingFound = True
                                     break
                     if kingFound != True:
@@ -793,7 +793,6 @@ def Game(createdBoard, player1, player2):
             sourcePiece = None
             source = input("Please provide source coordinates of the piece you want to move[x, y]: ")
             sanitizedSource = createdBoard.parser(source, False)
-            #print("source" + str(sanitizedSource))
             if sanitizedSource == False:
                 print("Incorrect Source Coordinates, Please Try Again")
                 continue
@@ -815,14 +814,12 @@ def Game(createdBoard, player1, player2):
         while True:
             dest = input("Please provide destination coordinates of the piece you want to move[x, y]: ")
             sanitizedDestination = createdBoard.parser(dest, False)
-            #print("destination" + str(sanitizedDestination))
             if sanitizedDestination == False:
                 print("Incorrect Destination Coordinates, Please Try Again")
                 continue
             else:
                 #check for piece in target location
                 ally = createdBoard.allyChecker(createdBoard.pieces, currentPlayer, sanitizedDestination)
-                #print(ally)
                 if ally == True:
                     print("Not a valid move, destination contains ally piece!")
                     continue
@@ -839,8 +836,6 @@ def Game(createdBoard, player1, player2):
                 elif collision == -1:
                     print("Not a valid location!")
                     continue
-                # else:
-                #     print("No Collision!")
 
                 if enemyPiece == False and sourcePiece.displayValue != "bp" or sourcePiece.displayValue != "wp" and collision == False:
                     validMove = sourcePiece.move(sanitizedDestination)
@@ -867,6 +862,28 @@ def Game(createdBoard, player1, player2):
 
                 #validate for presence of check
                 while True:
+                    #special run only for king to avoid running into an enemy
+                    if sourcePiece.displayValue == "wk" or sourcePiece.displayValue == "bk":
+                        if currentPlayer == player1:
+                            enemyPlayer = player2
+                        else:
+                            enemyPlayer = player1
+
+                        selfCheck = createdBoard.check(createdBoard.pieces, enemyPlayer)
+                        if selfCheck[0] == "check":
+                            print("Not a valid location for king!")
+                            #rollback code
+                            sourcePiece.location = sanitizedSource
+                            if enemyPiece != False:
+                                createdBoard.pieces.append(enemyPiece)
+                                del positions[str(sourcePiece.location)]
+                                position = {str(sanitizedSource): sourcePiece.displayValue}
+                                positions.update(position)
+                            createdBoard.updateBoard(createdBoard.pieces)
+                        else:
+                            turn += 1
+                            break
+
                     if underCheck == None:
                         check = createdBoard.check(createdBoard.pieces, currentPlayer)
 
@@ -896,7 +913,6 @@ def Game(createdBoard, player1, player2):
                         turn += 1
                         underCheck = None
                         break
-                #print(positions)
                 break
                 
 
