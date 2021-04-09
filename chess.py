@@ -224,7 +224,37 @@ class Chess_Board():
         displacement.append(int(king.location[0]) - int(sourcePiece.location[0]))
         displacement.append(int(king.location[1]) - int(sourcePiece.location[1]))
 
-        if sourcePiece.perpendicular == True and sourcePiece.diagonal == True:
+        #pawns
+        if sourcePiece.perpendicular == True and sourcePiece.diagonal == False and (sourcePiece.displayValue == "wp" or sourcePiece.displayValue == "bp"):
+            if sourcePiece.displayValue == "wp":
+                position1 = '[{0}, {1}]'.format(str(sourcePiece.location[0] + 1), str(sourcePiece.location[1] - 1))
+                position2 = '[{0}, {1}]'.format(str(sourcePiece.location[0] - 1), str(sourcePiece.location[1] - 1))
+                position1Piece = positions.get(position1)
+                position2Piece = positions.get(position2)
+                if position1Piece == king.displayValue:
+                    kingFound = True
+                    unprotected = True
+                elif position2Piece == king.displayValue:
+                    kingFound = True
+                    unprotected = True
+            elif sourcePiece.displayValue == "bp":
+                position1 = '[{0}, {1}]'.format(str(sourcePiece.location[0] + 1), str(sourcePiece.location[1] + 1))
+                position2 = '[{0}, {1}]'.format(str(sourcePiece.location[0] - 1), str(sourcePiece.location[1] + 1))
+                position1Piece = positions.get(position1)
+                position2Piece = positions.get(position2)
+                if position1Piece == king.displayValue:
+                    kingFound = True
+                    unprotected = True
+                elif position2Piece == king.displayValue:
+                    kingFound = True
+                    unprotected = True
+
+        #knights
+        elif sourcePiece.perpendicular == False and sourcePiece.diagonal == False:
+            print("placeholder")
+
+        #queen and king
+        elif sourcePiece.perpendicular == True and sourcePiece.diagonal == True:
             eastOrthogonal = [1,0]
             westOrthogonal = [-1,0]
             northOrthogonal = [0,-1]
@@ -439,6 +469,7 @@ class Chess_Board():
             #     print("king found: ", kingFound)
             #     print("unprotected: ", unprotected)        
 
+        #rooks
         elif sourcePiece.perpendicular == True and sourcePiece.diagonal == False:
             eastOrthogonal = [1,0]
             westOrthogonal = [-1,0]
@@ -544,17 +575,8 @@ class Chess_Board():
                 unprotected = False
             elif pieceFound == False and kingFound == True:
                 unprotected = True
-            #for pawns only
-            # elif displacement[1] != 0 and orthogonal != "" and sourcePiece.side != king.side:
-            #     for step in (range(1, abs(int(displacement[1])) + 1)):
-            #         if step <= sourcePiece.distance:
-            #             position = '[{0}, {1}]'.format(str(sourcePiece.location[0]), str((sourcePiece.location[1] + (int(orthogonal[1]) * step))))
-            #             piece = positions.get(position)
-            #             if piece != None and piece == king.displayValue:
-            #                 return "check"
-            #             else:
-            #                 return False
 
+        #bishops
         elif sourcePiece.diagonal == True and sourcePiece.perpendicular == False:
             northeastDiagonal = [(1,-1)]
             northwestDiagonal = [(-1,-1)]
