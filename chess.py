@@ -251,7 +251,13 @@ class Chess_Board():
 
         #knights
         elif sourcePiece.perpendicular == False and sourcePiece.diagonal == False:
-            print("placeholder")
+            movements = [[2,-1], [-2,-1], [1,2], [-1,2], [2,1], [-2,1], [1,-2], [-1,-2]]
+            for movement in movements:
+                position = '[{0}, {1}]'.format(str(sourcePiece.location[0] + movement[0]), str(sourcePiece.location[1] + movement[1]))
+                piece = positions.get(position)
+                if piece == king.displayValue:
+                    kingFound = True
+                    unprotected = True
 
         #queen and king
         elif sourcePiece.perpendicular == True and sourcePiece.diagonal == True:
