@@ -11,8 +11,6 @@ class Queen(Piece):
         self.diagonal = diagonal
         self.distance = distance
 
-    #define movement to pass to move
-    ##########finish movement
     def move(self, targetLocation):
         diagonal = [(1,1),(-1,1),(1,-1),(-1,-1)]
         #perpendicular

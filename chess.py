@@ -468,13 +468,6 @@ class Chess_Board():
             elif pieceFound == False and kingFound == True:
                 unprotected = True
             
-            # if sourcePiece.displayValue == "wq" or sourcePiece.displayValue == "bq":
-            #     print("sourcepiece: ",sourcePiece.displayValue)
-            #     print("target: ",king.displayValue)
-            #     print("piece found: ", pieceFound)
-            #     print("king found: ", kingFound)
-            #     print("unprotected: ", unprotected)        
-
         #rooks
         elif sourcePiece.perpendicular == True and sourcePiece.diagonal == False:
             eastOrthogonal = [1,0]
