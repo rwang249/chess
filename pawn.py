@@ -13,35 +13,47 @@ class Pawn(Piece):
         self.firstMoveUsed = False
         self.distance = distance
 
-    def move(self, targetLocation):
+    def move(self, targetLocation, validateCheckmate):
         #used only for first move of a pawn
         if self.firstMoveUsed == False:
             if self.side == "b":
                 if int(targetLocation[1]) == int(self.location[1]) + 1 or int(targetLocation[1]) == int(self.location[1]) + 2 and int(targetLocation[0]) == int(self.location[0]):
-                    self.location[1] = int(targetLocation[1])
-                    self.firstMoveUsed = True
-                    return True
+                    if validateCheckmate == True:
+                        return True, targetLocation
+                    else:
+                        self.location[1] = int(targetLocation[1])
+                        self.firstMoveUsed = True
+                        return True
                 else:
                     return False
             elif self.side == "w":
                 if int(targetLocation[1]) == int(self.location[1]) - 1 or int(targetLocation[1]) == int(self.location[1]) - 2 and int(targetLocation[0]) == int(self.location[0]):
-                    self.location[1] = int(targetLocation[1])
-                    self.firstMoveUsed = True
-                    return True
+                    if validateCheckmate == True:
+                        return True, targetLocation
+                    else:
+                        self.location[1] = int(targetLocation[1])
+                        self.firstMoveUsed = True
+                        return True
                 else:
                     return False
 
         #used for subsequent moves beyond the first
         if self.side == "b":
             if int(targetLocation[1]) == int(self.location[1]) + 1 and int(targetLocation[0]) == int(self.location[0]):
-                self.location[1] = int(targetLocation[1])
-                return True
+                if validateCheckmate == True:
+                    return True, targetLocation
+                else:
+                    self.location[1] = int(targetLocation[1])
+                    return True
             else:
                 return False
         elif self.side == "w":
             if int(targetLocation[1]) == int(self.location[1]) - 1 and int(targetLocation[0]) == int(self.location[0]):
-                self.location[1] = int(targetLocation[1])
-                return True
+                if validateCheckmate == True:
+                    return True, targetLocation
+                else:
+                    self.location[1] = int(targetLocation[1])
+                    return True
             else:
                 return False
 

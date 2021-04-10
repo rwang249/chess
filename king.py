@@ -11,26 +11,7 @@ class King(Piece):
         self.diagonal = diagonal
         self.distance = distance
 
-    # def move(self, targetLocation):
-    #     diagonal = [(1,1),(-1,1),(1,-1),(-1,-1)]
-    #     #perpendicular
-    #     if int(targetLocation[0]) == (self.location[0] + 1) and int(targetLocation[1]) == self.location[1]:
-    #         self.location[0] = int(targetLocation[0])
-    #         self.location[1] = int(targetLocation[1])
-    #         return True
-    #     elif int(targetLocation[1]) == (self.location[1] + 1) and int(targetLocation[0]) == self.location[0]: 
-    #         self.location[0] = int(targetLocation[0])
-    #         self.location[1] = int(targetLocation[1])
-    #         return True
-        
-    #     #diagonal
-    #     for x, y in diagonal:
-    #         if int(targetLocation[0]) == int(self.location[0]) + int(x * 1) and int(targetLocation[1]) == int(self.location[1]) + int(y * 1):
-    #             self.location[0] = int(targetLocation[0])
-    #             self.location[1] = int(targetLocation[1])
-    #             return True
-    #     return False
-    def move(self, targetLocation):
+    def move(self, targetLocation, validateCheckmate):
         diagonal = [(1,1),(-1,1),(1,-1),(-1,-1)]
         displacement = []
         displacement.append(int(targetLocation[0]) - int(self.location[0]))
