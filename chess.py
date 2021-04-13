@@ -2,15 +2,9 @@
 
 #use inheritance(i.e. board should refer to pieces, and pieces should refer to specific piece's common method(movement))
 #use abstraction
-#create method to check status of gameboard
-#create class to for board
-#create class for pieces
-#base class of piece
-#derivative will be individual pieces
-#chess board composition of piece?
 import os
 import re
-import itertools
+import copy
 from piece  import Piece
 from bishop import Bishop
 from king   import King
@@ -216,11 +210,6 @@ class Chess_Board():
         kingFound = False
         pieceFound = False
         unprotected = False
-
-        #calculate displacement
-        displacement = []
-        displacement.append(int(king.location[0]) - int(sourcePiece.location[0]))
-        displacement.append(int(king.location[1]) - int(sourcePiece.location[1]))
 
         #pawns
         if sourcePiece.perpendicular == True and sourcePiece.diagonal == False and (sourcePiece.displayValue == "wp" or sourcePiece.displayValue == "bp"):
@@ -700,13 +689,14 @@ class Chess_Board():
                     return piece
         return False
 
-    def check(self, pieces, player):
+    def check(self, pieces, player, validateCheckmate):
+        #get king
         for piece in pieces:
             index = pieces.index(piece)
             if player.side != piece.side and (piece.displayValue == "wk" or piece.displayValue == "bk"):
-                enemyKingLocation = pieces[index].location
                 enemyKing = piece
-                
+        
+        #code just used for check      
         #need to check all pieces for existance of check
         for x in range(len(pieces)):
             isCheck = createdBoard.checkValidator(pieces[x], enemyKing, player)
@@ -764,21 +754,23 @@ class Player2():
 def Game(createdBoard, player1, player2):
     global positions
     turn = 1
-    winner = False
+    checkmate = False
     underCheck = None
     checkingPlayer = None
-    while winner != True:
-        clearScreen()
+    while checkmate != True:
+        #clearScreen()
         
         #Iterate Players
         if (turn % 2) == 1:
             currentPlayer = player1
+            enemyPlayer = player2
         elif (turn % 2) == 0:
             currentPlayer = player2
+            enemyPlayer = player1
         else:
             print("turn error!")
         #remove once you have actual game logic
-        #winner = True
+        #checkmate = True
         
         #start turn
         if underCheck != None:
@@ -792,6 +784,7 @@ def Game(createdBoard, player1, player2):
             sourcePiece = None
             source = input("Please provide source coordinates of the piece you want to move[x, y]: ")
             sanitizedSource = createdBoard.parser(source, False)
+            print("sanitzed source", sanitizedSource)
             if sanitizedSource == False:
                 print("Incorrect Source Coordinates, Please Try Again")
                 continue
@@ -814,6 +807,7 @@ def Game(createdBoard, player1, player2):
         while True:
             dest = input("Please provide destination coordinates of the piece you want to move[x, y]: ")
             sanitizedDestination = createdBoard.parser(dest, False)
+            print("sanitized destination", sanitizedDestination)
             if sanitizedDestination == False:
                 print("Incorrect Destination Coordinates, Please Try Again")
                 continue
@@ -839,21 +833,21 @@ def Game(createdBoard, player1, player2):
 
                 #call move function for piece
                 if enemyPiece == False and sourcePiece.displayValue != "bp" or sourcePiece.displayValue != "wp" and collision == False:
-                    validMove = sourcePiece.move(sanitizedDestination)
+                    validMove = sourcePiece.move(sanitizedDestination, False)
                 elif enemyPiece != False and sourcePiece.displayValue == "bp" or sourcePiece.displayValue == "wp" and collision == False:
-                    validMove = sourcePiece.attack(sanitizedDestination)
+                    validMove = sourcePiece.attack(sanitizedDestination, False)
                 elif enemyPiece == False and collision == False:
-                    validMove = sourcePiece.move(sanitizedDestination)
-                
+                    validMove = sourcePiece.move(sanitizedDestination, False)
+
                 #update board and also positions dictionary
-                if validMove == True and enemyPiece != False and collision == False:
+                if validMove[0] == True and enemyPiece != False and collision == False:
                     del positions[str(enemyPiece.location)]
                     del positions[str(sanitizedSource)]
                     position = {str(sourcePiece.location): sourcePiece.displayValue}
                     positions.update(position)
                     createdBoard.pieces.remove(enemyPiece)
                     createdBoard.updateBoard(createdBoard.pieces)
-                elif validMove == True and collision == False:
+                elif validMove[0] == True and collision == False:
                     del positions[str(sanitizedSource)]
                     position = {str(sourcePiece.location): sourcePiece.displayValue}
                     positions.update(position)
@@ -866,12 +860,7 @@ def Game(createdBoard, player1, player2):
                 while True:
                     #special section only for king to avoid running into an enemy
                     if sourcePiece.displayValue == "wk" or sourcePiece.displayValue == "bk":
-                        if currentPlayer == player1:
-                            enemyPlayer = player2
-                        else:
-                            enemyPlayer = player1
-
-                        selfCheck = createdBoard.check(createdBoard.pieces, enemyPlayer)
+                        selfCheck = createdBoard.check(createdBoard.pieces, enemyPlayer, False)
                         if selfCheck[0] == "check":
                             print("Not a valid location for king!")
                             #rollback code
@@ -889,16 +878,90 @@ def Game(createdBoard, player1, player2):
                     #section for pieces that are not king
                     #will scan pieces for check. once check is applied only performing an action that breaks check is allowed
                     if underCheck == None:
-                        check = createdBoard.check(createdBoard.pieces, currentPlayer)
+                        check = createdBoard.check(createdBoard.pieces, currentPlayer, False)
 
                     if check[0] == "check" and underCheck == None:
                         underCheck = check[1]
                         checkingPlayer = currentPlayer
-                        turn += 1
-                        break
+
+                        #calculate checkmate
+                        check = createdBoard.check(createdBoard.pieces, currentPlayer, True)
+                        movements = [[-1,0], [1,0], [0,-1], [0,1], [1,-1], [-1,-1], [1,1], [-1,1]]
+                        protectedSquares = set()
+                        attackedSquares = set()
+                        
+                        #get king
+                        for piece in createdBoard.pieces:
+                            index = createdBoard.pieces.index(piece)
+                            if currentPlayer.side != piece.side and (piece.displayValue == "wk" or piece.displayValue == "bk"):
+                                enemyKing = piece
+
+                        #code for checkmate validation. only triggered if checkmate might be possible
+                        #make copy of king
+                        originalLocation = []
+                        checkmateKing = copy.deepcopy(enemyKing)
+                        originalLocation.append(checkmateKing.location[0])
+                        originalLocation.append(checkmateKing.location[1])
+                        #check all squares around king
+                        for movement in movements:
+                            #create flag
+                            movementCheck = False
+                            #reset king location to original
+                            checkmateKing.location[0] = originalLocation[0]
+                            checkmateKing.location[1] = originalLocation[1]
+                            #move king to a surrounding square
+                            checkmateKing.location[0] += movement[0]
+                            checkmateKing.location[1] += movement[1]
+                            #if potential king locations are out of bounds then continue
+                            if (checkmateKing.location[0] > 7 or checkmateKing.location[0] < 0) or (checkmateKing.location[1] > 7 or checkmateKing.location[1] < 0):
+                                continue
+                            newLocation = checkmateKing.location
+                            #check all pieces to see how many can check the king
+                            for checkPiece in createdBoard.pieces:
+                                checkSourcePiece = checkPiece
+
+                                #check king locations and if they are still in danger of attack. 
+                                if checkPiece.displayValue != "bk" or checkPiece.displayValue != "wk" and checkPiece.side != checkmateKing.side:
+                                    isCheck = createdBoard.checkValidator(checkPiece, checkmateKing, currentPlayer)
+                                    if isCheck == "check":
+                                        attackingBlocked = createdBoard.allyChecker(createdBoard.pieces, enemyPlayer, newLocation)
+                                        for protectingPiece in createdBoard.pieces:
+                                            isBlocked = createdBoard.allyChecker(createdBoard.pieces, currentPlayer, newLocation)
+                                            canProtect = protectingPiece.move(newLocation, True)
+                                            #evaluate protection results
+                                            if protectingPiece.side == checkmateKing.side and canProtect[0] == True \
+                                            and protectingPiece.displayValue != checkmateKing.displayValue and isBlocked == False:
+                                                protectedSquares.add(tuple(canProtect[1]))
+                                            #reset protection flag for next iteration
+                                            canProtect = None
+                                        #set attack flag because check was triggered
+                                        movementCheck = True
+                                        break
+
+                            #validate if square beside king can be checked
+                            if movementCheck == True and attackingBlocked == False:
+                                attackedSquares.add(tuple(checkmateKing.location))
+
+                        #reset king location to original
+                        enemyKing.location[0] = originalLocation[0]
+                        enemyKing.location[1] = originalLocation[1]
+
+                        #do a diff and if king is still in danger set checkmate
+                        if len(attackedSquares) != 0:
+                            diff = attackedSquares.difference(protectedSquares)
+                            print("difference", len(diff))
+                            if len(diff) >= 1:
+                                checkmate = True
+                            else:
+                                turn += 1 
+                                break
+                        else:
+                            turn += 1 
+                            break
+
                     elif check[0] == "check" and underCheck != None:                            
                         if currentPlayer.side == underCheck:
-                            check = createdBoard.check(createdBoard.pieces, checkingPlayer)
+                            check = createdBoard.check(createdBoard.pieces, checkingPlayer, False)
                             if check[0] == "check":
                                 #rollback code
                                 sourcePiece.location = sanitizedSource
@@ -916,6 +979,9 @@ def Game(createdBoard, player1, player2):
                         turn += 1
                         underCheck = None
                         break
+                if checkmate == True:
+                    print("CHECKMATE! " + currentPlayer.name + " WINS")
+                    print(createdBoard.displayBoard(createdBoard.board))         
                 break
                 
 

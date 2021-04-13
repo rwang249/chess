@@ -12,7 +12,7 @@ class Knight(Piece):
         self.distance = distance
 
     #define movement to pass to move
-    def move(self, targetLocation):
+    def move(self, targetLocation, validateCheckmate):
         valid = False
         if int(targetLocation[1]) == int(self.location[1]) + 2 or int(targetLocation[1]) == int(self.location[1]) - 2: 
             if int(targetLocation[0]) == int(self.location[0] + 1) or int(targetLocation[0]) == int(self.location[0] - 1):
@@ -26,8 +26,11 @@ class Knight(Piece):
                 valid = False
             
         if valid == True:
-            self.location[0] = int(targetLocation[0])
-            self.location[1] = int(targetLocation[1])
-            return True
+            if validateCheckmate == True:
+                return [True, targetLocation]
+            else:
+                self.location[0] = int(targetLocation[0])
+                self.location[1] = int(targetLocation[1])
+                return [True, targetLocation]
         else:
-            return False
+            return [False, targetLocation]
