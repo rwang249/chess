@@ -15,17 +15,19 @@ class Rook(Piece):
     def move(self, targetLocation, validateCheckmate):
         if int(targetLocation[0]) <= 7 and int(targetLocation[1]) == self.location[1]:
             if validateCheckmate == True:
-                return True, targetLocation
-            else:
+                #print("hit this one")
+                return [True, targetLocation]
+            else:            
                 self.location[0] = int(targetLocation[0])
                 self.location[1] = int(targetLocation[1])
-                return True
+                return [True, targetLocation]
         elif int(targetLocation[1]) <= 7 and int(targetLocation[0]) == self.location[0]: 
             if validateCheckmate == True:
-                return True, targetLocation
+                return [True, targetLocation]
             else:
+                #print("hit this one")
                 self.location[0] = int(targetLocation[0])
                 self.location[1] = int(targetLocation[1])
-                return True
+                return [True, targetLocation]
         else:
-            return False
+            return [False, targetLocation]

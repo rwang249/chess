@@ -21,12 +21,12 @@ class King(Piece):
             if abs(int(displacement[0])) == self.distance:
                 self.location[0] = int(targetLocation[0])
                 self.location[1] = int(targetLocation[1])
-                return True
+                return [True, targetLocation]
         elif int(targetLocation[1]) <= 7 and int(targetLocation[0]) == self.location[0]:
             if abs(int(displacement[1])) == self.distance:
                 self.location[0] = int(targetLocation[0])
                 self.location[1] = int(targetLocation[1])
-                return True
+                return [True, targetLocation]
         
         #diagonal
         for x, y in diagonal:
@@ -34,5 +34,5 @@ class King(Piece):
                 if int(targetLocation[0]) == int(self.location[0]) + int(x * step) and int(targetLocation[1]) == int(self.location[1]) + int(y * step):
                     self.location[0] = int(targetLocation[0])
                     self.location[1] = int(targetLocation[1])
-                    return True
-        return False
+                    return [True, targetLocation]
+        return [False, targetLocation]

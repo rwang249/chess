@@ -27,10 +27,10 @@ class Knight(Piece):
             
         if valid == True:
             if validateCheckmate == True:
-                return True, targetLocation
+                return [True, targetLocation]
             else:
                 self.location[0] = int(targetLocation[0])
                 self.location[1] = int(targetLocation[1])
-                return True
+                return [True, targetLocation]
         else:
-            return False
+            return [False, targetLocation]

@@ -19,58 +19,64 @@ class Pawn(Piece):
             if self.side == "b":
                 if int(targetLocation[1]) == int(self.location[1]) + 1 or int(targetLocation[1]) == int(self.location[1]) + 2 and int(targetLocation[0]) == int(self.location[0]):
                     if validateCheckmate == True:
-                        return True, targetLocation
+                        return [True, targetLocation]
                     else:
                         self.location[1] = int(targetLocation[1])
                         self.firstMoveUsed = True
-                        return True
+                        return [True, targetLocation]
                 else:
-                    return False
+                    return [False, targetLocation]
             elif self.side == "w":
                 if int(targetLocation[1]) == int(self.location[1]) - 1 or int(targetLocation[1]) == int(self.location[1]) - 2 and int(targetLocation[0]) == int(self.location[0]):
                     if validateCheckmate == True:
-                        return True, targetLocation
+                        return [True, targetLocation]
                     else:
                         self.location[1] = int(targetLocation[1])
                         self.firstMoveUsed = True
-                        return True
+                        return [True, targetLocation]
                 else:
-                    return False
+                    return [False, targetLocation]
 
         #used for subsequent moves beyond the first
         if self.side == "b":
             if int(targetLocation[1]) == int(self.location[1]) + 1 and int(targetLocation[0]) == int(self.location[0]):
                 if validateCheckmate == True:
-                    return True, targetLocation
+                    return [True, targetLocation]
                 else:
                     self.location[1] = int(targetLocation[1])
-                    return True
+                    return [True, targetLocation]
             else:
-                return False
+                return [False, targetLocation]
         elif self.side == "w":
             if int(targetLocation[1]) == int(self.location[1]) - 1 and int(targetLocation[0]) == int(self.location[0]):
                 if validateCheckmate == True:
-                    return True, targetLocation
+                    return [True, targetLocation]
                 else:
                     self.location[1] = int(targetLocation[1])
-                    return True
+                    return [True, targetLocation]
             else:
-                return False
+                return [False, targetLocation]
 
-    def attack(self, targetLocation):
+    def attack(self, targetLocation, validateCheckmate):
         #method used only for pawns
         if self.side == "b":
             if int(targetLocation[1]) == int(self.location[1]) + 1 and int(targetLocation[0]) == int(self.location[0]) + 1 or int(targetLocation[0]) == int(self.location[0]) - 1:
-                self.location[0] = int(targetLocation[0])
-                self.location[1] = int(targetLocation[1])
-                return True
+                if validateCheckmate == True:
+                    return [True, targetLocation]
+                else:
+                    self.location[0] = int(targetLocation[0])
+                    self.location[1] = int(targetLocation[1])
+                    return [True, targetLocation]
             else:
-                return False
+                return [False, targetLocation]
         elif self.side == "w":
             if int(targetLocation[1]) == int(self.location[1]) - 1 and int(targetLocation[0]) == int(self.location[0]) + 1 or int(targetLocation[0]) == int(self.location[0]) - 1:
-                self.location[0] = int(targetLocation[0])
-                self.location[1] = int(targetLocation[1])
-                return True
+                if validateCheckmate == True:
+                    return [True, targetLocation]
+                else:
+                    self.location[0] = int(targetLocation[0])
+                    self.location[1] = int(targetLocation[1])
+                    return [True, targetLocation]
             else:
-                return False
+                return [False, targetLocation]
 
