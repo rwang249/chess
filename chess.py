@@ -25,14 +25,10 @@ class Chess_Board():
         for piece in pieces:
             index = pieces.index(piece)
             pieceLocation = pieces[index].location
-            #print(pieceLocation)
-            #parsedLocation = self.parser(str(pieceLocation), False)
-            #print(parsedLocation)
             position = {str(pieceLocation): pieces[index].displayValue} 
             positions.update(position)
             board[pieceLocation[1]][pieceLocation[0]] = str(pieces[index].displayValue).format()
         self.board = board
-        #print(positions)
 
     def updateBoard(self, pieces):
         self.pieces = pieces
