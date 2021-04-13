@@ -1,0 +1,99 @@
+queen movement
+
+d, 2
+d, 4
+g, 7
+g, 5
+d, 1
+d, 3
+a, 7
+a, 5
+d, 3
+e, 3
+b, 7
+b, 5
+e, 3
+e, 7
+
+rook movement
+
+a, 2
+a, 4
+g, 7
+g, 5
+a, 1
+a, 3
+a, 7
+a, 5
+a, 3
+e, 3
+b, 7
+b, 5
+e, 3
+e, 7
+
+bishop movement
+
+e, 2
+e, 4
+d, 7
+d, 5
+f, 1
+b, 5
+c, 7
+c, 6
+
+pawn movement
+
+c, 2
+c, 4
+a, 7
+a, 5
+c, 4
+c, 5
+h, 7
+h, 5
+c, 5
+c, 6
+a, 5
+a, 4
+c, 6
+d, 7
+
+knight movement
+b, 1
+c, 3
+a, 7
+a, 5
+c, 3
+b, 5
+a, 5
+a, 4
+b, 5
+c, 7
+
+king movement
+e, 2
+e, 4
+a, 7
+a, 5
+e, 1
+e, 2
+b, 7
+b, 5
+e, 2
+d, 3
+c, 7
+c, 6
+d, 3
+c, 4
+
+checkmate movement
+g, 2
+g, 4
+e, 7
+e, 6
+f, 2
+f, 3
+d, 8
+h, 4
