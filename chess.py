@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-#use inheritance(i.e. board should refer to pieces, and pieces should refer to specific piece's common method(movement))
-#use abstraction
 import os
 import re
 import copy
