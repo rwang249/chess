@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-#use inheritance(i.e. board should refer to pieces, and pieces should refer to specific piece's common method(movement))
-#use abstraction
 import os
 import re
 import copy
@@ -67,7 +65,7 @@ class Chess_Board():
             print("   {} ".format(letter), end="")
         print("\n")
 
-    def collisionChecker(self, pieces, sourcePiece, destination, check, player):
+    def collisionChecker(self, pieces, sourcePiece, destination, player):
         #calculate displacement
         displacement = []
 
@@ -110,7 +108,7 @@ class Chess_Board():
                 #diagonal
                 if diagonal != "":
                     for x, y in diagonal:
-                        for step in (range(1, abs(int(displacement[0]) + 1))):
+                        for step in (range(1, abs(int(displacement[0])) + 1)):
                             for piece in pieces:
                                 if (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step)) \
                                 and sourcePiece != piece and sourcePiece.side == piece.side):
@@ -120,22 +118,20 @@ class Chess_Board():
                 if displacement[0] != 0 and orthogonal != "":
                     for step in (range(1, abs(int(displacement[0])))):
                         for piece in pieces:
-                            if int(sourcePiece.location[1]) == int(piece.location[1]) and (int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) == int(piece.location[0]) \
-                            and ((int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) <= piece.distance):
+                            if int(sourcePiece.location[1]) == int(piece.location[1]) and (int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) == int(piece.location[0]):
                                 if sourcePiece.side == piece.side:
                                     return True
-                                elif sourcePiece.side != piece.side:
+                                elif sourcePiece.side != piece.side and piece.location != destination:
                                     return True
 
                 #y Axis
                 elif displacement[1] != 0 and orthogonal != "":
                     for step in (range(1, abs(int(displacement[1])))):
                         for piece in pieces:
-                            if int(sourcePiece.location[0]) == int(piece.location[0]) and (int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) == int(piece.location[1]) \
-                            and ((int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) <= piece.distance):
+                            if int(sourcePiece.location[0]) == int(piece.location[0]) and (int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) == int(piece.location[1]):
                                 if sourcePiece.side == piece.side:
                                     return True
-                                elif sourcePiece.side != piece.side:
+                                elif sourcePiece.side != piece.side and piece.location != destination:
                                     return True
             except:
                 return -1
@@ -160,22 +156,20 @@ class Chess_Board():
             if displacement[0] != 0 and orthogonal != "":
                 for step in (range(1, abs(int(displacement[0])))):
                     for piece in pieces:
-                        if int(sourcePiece.location[1]) == int(piece.location[1]) and (int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) == int(piece.location[0]) \
-                        and ((int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) <= piece.distance):
+                        if int(sourcePiece.location[1]) == int(piece.location[1]) and (int(sourcePiece.location[0] + (int(orthogonal[0]) * step))) == int(piece.location[0]):
                             if sourcePiece.side == piece.side:
                                 return True
-                            elif sourcePiece.side != piece.side:
+                            elif sourcePiece.side != piece.side and piece.location != destination:
                                 return True
 
             #y Axis
             elif displacement[1] != 0 and orthogonal != "":
                 for step in (range(1, abs(int(displacement[1])))):
                     for piece in pieces:
-                        if int(sourcePiece.location[0]) == int(piece.location[0]) and (int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) == int(piece.location[1]) \
-                        and ((int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) <= piece.distance):
+                        if int(sourcePiece.location[0]) == int(piece.location[0]) and (int(sourcePiece.location[1] + (int(orthogonal[1]) * step))) == int(piece.location[1]):
                             if sourcePiece.side == piece.side:
                                 return True
-                            elif sourcePiece.side != piece.side:
+                            elif sourcePiece.side != piece.side and piece.location != destination:
                                 return True
 
         elif sourcePiece.diagonal == True and sourcePiece.perpendicular == False:
@@ -196,7 +190,7 @@ class Chess_Board():
             
             try:
                 for x, y in diagonal:
-                    for step in (range(1, abs(int(displacement[0]) + 1))):
+                    for step in (range(1, abs(int(displacement[0])) + 1)):
                         for piece in pieces:
                             if (int(piece.location[0]) == int(sourcePiece.location[0] + (x * step)) and int(piece.location[1]) == int(sourcePiece.location[1] + (y * step)) \
                             and sourcePiece != piece and sourcePiece.side == piece.side):
@@ -758,7 +752,7 @@ def Game(createdBoard, player1, player2):
     underCheck = None
     checkingPlayer = None
     while checkmate != True:
-        #clearScreen()
+        clearScreen()
         
         #Iterate Players
         if (turn % 2) == 1:
@@ -769,8 +763,6 @@ def Game(createdBoard, player1, player2):
             enemyPlayer = player1
         else:
             print("turn error!")
-        #remove once you have actual game logic
-        #checkmate = True
         
         #start turn
         if underCheck != None:
@@ -784,7 +776,6 @@ def Game(createdBoard, player1, player2):
             sourcePiece = None
             source = input("Please provide source coordinates of the piece you want to move[x, y]: ")
             sanitizedSource = createdBoard.parser(source, False)
-            print("sanitzed source", sanitizedSource)
             if sanitizedSource == False:
                 print("Incorrect Source Coordinates, Please Try Again")
                 continue
@@ -807,7 +798,6 @@ def Game(createdBoard, player1, player2):
         while True:
             dest = input("Please provide destination coordinates of the piece you want to move[x, y]: ")
             sanitizedDestination = createdBoard.parser(dest, False)
-            print("sanitized destination", sanitizedDestination)
             if sanitizedDestination == False:
                 print("Incorrect Destination Coordinates, Please Try Again")
                 continue
@@ -823,9 +813,9 @@ def Game(createdBoard, player1, player2):
                     enemyPiece = False
                 
                 #check for collisions
-                collision = createdBoard.collisionChecker(createdBoard.pieces, sourcePiece, sanitizedDestination, False, currentPlayer)   
+                collision = createdBoard.collisionChecker(createdBoard.pieces, sourcePiece, sanitizedDestination, currentPlayer)   
                 if collision == True:
-                    print("Collision!")
+                    print("Collision! Not possible to jump pieces!")
                     continue
                 elif collision == -1:
                     print("Not a valid location!")
